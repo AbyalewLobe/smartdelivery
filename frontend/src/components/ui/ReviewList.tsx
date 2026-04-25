@@ -14,7 +14,7 @@ export function ReviewList({ targetType, targetId }: ReviewListProps) {
     queryKey: ['reviews', targetType, targetId],
     queryFn: async () => {
       const response = await reviewApi.getReviews(targetType, targetId);
-      return response.data.data;
+      return (response.data?.data ?? response.data) as Review[];
     }
   });
 

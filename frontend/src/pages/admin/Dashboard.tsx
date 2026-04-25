@@ -112,7 +112,7 @@ export function Dashboard() {
                   }`}></div>
                   <span className="text-gray-700 capitalize">{status.replace('_', ' ')}</span>
                 </div>
-                <span className="font-semibold text-gray-900">{count}</span>
+                <span className="font-semibold text-gray-900">{count as number}</span>
               </div>
             ))}
           </div>

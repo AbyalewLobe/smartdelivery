@@ -224,7 +224,7 @@ export function Orders() {
   );
 }
 
-function StatusUpdateModal({ order, onClose, onUpdate }: any) {
+function StatusUpdateModal({ order, onClose, onUpdate }: { order: any; onClose: () => void; onUpdate: (status: string, note: string) => void }) {
   const [status, setStatus] = useState(order.status);
   const [note, setNote] = useState('');
 
