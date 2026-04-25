@@ -39,10 +39,10 @@ const app = express();
 // Middleware
 const allowedOrigins = [
   process.env.FRONTEND_URL || 'http://localhost:5173',
-  'http://localhost:5174', // Alternative port
-  'http://localhost:5175', // Another alternative
-  'http://localhost:5000'  // Allow same origin (for Swagger)
-];
+  'http://localhost:5174',
+  'http://localhost:5175',
+  'http://localhost:5000'
+].filter(Boolean);
 app.use(cors({ 
   origin: (origin, callback) => {
     // Allow requests with no origin (like Swagger UI, mobile apps, curl, Postman)
