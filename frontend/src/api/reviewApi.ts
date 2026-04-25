@@ -13,7 +13,7 @@ export const reviewApi = {
 
   // Get all reviews for a shop or product
   getReviews: (targetType: 'shop' | 'product', targetId: string) =>
-    api.get<Review[]>(`/reviews/${targetType}/${targetId}`),
+    api.get<any>(`/reviews/${targetType}/${targetId}`),
 
   // Get current user's review
   getUserReview: (targetType: 'shop' | 'product', targetId: string) =>

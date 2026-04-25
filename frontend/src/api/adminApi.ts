@@ -1,10 +1,9 @@
 import api from './axios';
-import { Shop, Product, Order, User, DashboardStats } from '../types';
 
 // Dashboard APIs
 export const dashboardApi = {
-  getStats: () => api.get<DashboardStats>('/dashboard/stats'),
-  getRecentOrders: () => api.get<Order[]>('/dashboard/recent-orders'),
+  getStats: () => api.get<any>('/dashboard/stats'),
+  getRecentOrders: () => api.get<any>('/dashboard/recent-orders'),
   getTopShops: () => api.get('/dashboard/top-shops'),
   getTopProducts: () => api.get('/dashboard/top-products'),
   getRevenue: (period?: string) => api.get('/dashboard/revenue', { params: { period } }),
@@ -13,8 +12,8 @@ export const dashboardApi = {
 
 // Shop Management APIs
 export const adminShopApi = {
-  getShops: () => api.get<Shop[]>('/shops'),
-  getShopById: (id: string) => api.get<Shop>(`/shops/${id}`),
+  getShops: () => api.get<any>('/shops'),
+  getShopById: (id: string) => api.get<any>(`/shops/${id}`),
   createShop: (data: FormData) => api.post('/shops', data, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
@@ -26,9 +25,9 @@ export const adminShopApi = {
 
 // Product Management APIs
 export const adminProductApi = {
-  getProducts: () => api.get<Product[]>('/products'),
-  getProductById: (id: string) => api.get<Product>(`/products/${id}`),
-  getProductsByShop: (shopId: string) => api.get<Product[]>(`/products/shop/${shopId}`),
+  getProducts: () => api.get<any>('/products'),
+  getProductById: (id: string) => api.get<any>(`/products/${id}`),
+  getProductsByShop: (shopId: string) => api.get<any>(`/products/shop/${shopId}`),
   createProduct: (data: FormData) => api.post('/products', data, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
@@ -40,19 +39,19 @@ export const adminProductApi = {
 
 // Order Management APIs
 export const adminOrderApi = {
-  getAllOrders: () => api.get<Order[]>('/orders'),
-  getOrderById: (id: string) => api.get<Order>(`/orders/${id}`),
-  getShopOrders: (shopId: string) => api.get<Order[]>(`/orders/shop/${shopId}`),
-  getCustomerOrders: (customerId: string) => api.get<Order[]>(`/orders/customer/${customerId}`),
+  getAllOrders: () => api.get<any>('/orders'),
+  getOrderById: (id: string) => api.get<any>(`/orders/${id}`),
+  getShopOrders: (shopId: string) => api.get<any>(`/orders/shop/${shopId}`),
+  getCustomerOrders: (customerId: string) => api.get<any>(`/orders/customer/${customerId}`),
   updateOrderStatus: (id: string, status: string, note?: string) =>
     api.patch(`/orders/${id}/status`, { status, note })
 };
 
 // Customer Management APIs
 export const adminCustomerApi = {
-  getCustomers: () => api.get<User[]>('/customers'),
-  getCustomerById: (id: string) => api.get<User>(`/customers/${id}`),
-  getCustomerOrders: (id: string) => api.get<Order[]>(`/customers/${id}/orders`),
+  getCustomers: () => api.get<any>('/customers'),
+  getCustomerById: (id: string) => api.get<any>(`/customers/${id}`),
+  getCustomerOrders: (id: string) => api.get<any>(`/customers/${id}/orders`),
   updateCustomerStatus: (id: string, isActive: boolean) =>
     api.put(`/customers/${id}/status`, { isActive })
 };
