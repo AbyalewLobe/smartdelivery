@@ -85,11 +85,6 @@ export function AdminLogin() {
             Sign In
           </Button>
         </form>
-
-        <div className="mt-6 text-center text-sm text-gray-500">
-          <p>Default credentials:</p>
-          <p className="font-mono text-xs mt-1">admin@smartdeliver.com / admin123</p>
-        </div>
       </Card>
     </div>
   );
