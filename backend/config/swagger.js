@@ -4,11 +4,11 @@ const options = {
   definition: {
     openapi: '3.0.0',
     info: {
-      title: 'Smart Deliver API',
+      title: 'Bazaar+ API',
       version: '1.0.0',
       description: 'Admin-operated multi-shop delivery platform API documentation',
       contact: {
-        name: 'Smart Deliver Team',
+        name: 'Bazaar+ Team',
         email: 'support@smartdeliver.com'
       },
       license: {

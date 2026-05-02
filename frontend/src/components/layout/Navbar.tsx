@@ -1,5 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingCart, User, LogOut, Menu } from 'lucide-react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { ShoppingCart, User, LogOut, Menu, X, ArrowRight } from 'lucide-react';
 import { useAuthStore, useIsAuthenticated } from '../../store/authStore';
 import { useTotalItems } from '../../store/cartStore';
 import { useState, useEffect, useRef } from 'react';
@@ -11,8 +11,9 @@ export function Navbar() {
   const isAuthenticated = useIsAuthenticated();
   const totalItems = useTotalItems();
   const navigate = useNavigate();
+  const location = useLocation();
   const [showMenu, setShowMenu] = useState(false);
-  const navRef = useRef<HTMLElement>(null);
+  const navRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = () => {
     logout();
@@ -20,11 +21,8 @@ export function Navbar() {
     navigate('/login');
   };
 
-  const handleMenuClick = () => {
-    setShowMenu(false);
-  };
+  const handleMenuClick = () => setShowMenu(false);
 
-  // Close menu when clicking outside navbar
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (navRef.current && !navRef.current.contains(event.target as Node)) {
@@ -35,121 +33,154 @@ export function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const isActive = (path: string) => location.pathname === path;
+
   return (
-    <nav ref={navRef} className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+    <div className="fixed top-4 left-0 right-0 z-50 px-4 flex justify-center">
+      <div ref={navRef} className="w-full max-w-3xl">
+
+        {/* Floating Pill Navbar */}
+        <div className="bg-gradient-to-r from-gray-900 via-primary-950 to-primary-900 rounded-full shadow-xl shadow-black/20 border border-white/10 px-4 h-14 flex items-center justify-between gap-3">
+
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-600 rounded-xl flex items-center justify-center">
-              <span className="text-white font-bold text-xl">SD</span>
+          <Link to="/" className="flex items-center space-x-1.5 flex-shrink-0">
+            <div className="w-8 h-8 bg-primary-400 rounded-full flex items-center justify-center">
+              <span className="text-white font-bold text-sm">B+</span>
             </div>
-            <span className="text-xl font-bold text-gray-900">Smart Deliver</span>
+            <span className="font-bold text-white text-lg tracking-tight">Bazaar+</span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-6">
-            <Link to="/shops" className="text-gray-700 hover:text-primary-600 transition">
+          {/* Desktop center links */}
+          <div className="hidden md:flex items-center gap-6 flex-1 justify-center">
+            <Link
+              to="/shops"
+              className={`text-sm font-medium transition-colors ${isActive('/shops') ? 'text-primary-300' : 'text-white/70 hover:text-white'}`}
+            >
               Shops
             </Link>
-            
+            {isAuthenticated && (
+              <Link
+                to="/orders"
+                className={`text-sm font-medium transition-colors ${isActive('/orders') ? 'text-primary-300' : 'text-white/70 hover:text-white'}`}
+              >
+                Orders
+              </Link>
+            )}
+          </div>
+
+          {/* Right side actions */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+
             {isAuthenticated ? (
               <>
-                <Link to="/orders" className="text-gray-700 hover:text-primary-600 transition">
-                  Orders
-                </Link>
-                
+                {/* Notification */}
                 <NotificationBell />
-                
-                <Link to="/cart" className="relative">
-                  <ShoppingCart className="w-6 h-6 text-gray-700 hover:text-primary-600 transition" />
+
+                {/* Cart pill button */}
+                <Link to="/cart" className="relative flex items-center gap-1.5 bg-primary-500 hover:bg-primary-600 text-white text-sm font-semibold pl-3 pr-4 py-2 rounded-full transition-colors">
+                  <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                    <ShoppingCart className="w-3.5 h-3.5" />
+                  </div>
+                  <span className="hidden sm:inline">Cart</span>
                   {totalItems > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-primary-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
                       {totalItems}
                     </span>
                   )}
                 </Link>
 
+                {/* User dropdown */}
                 <div className="relative group">
-                  <button className="flex items-center space-x-2 text-gray-700 hover:text-primary-600 transition">
-                    <User className="w-6 h-6" />
-                    <span>{user?.name}</span>
+                  <button className="w-9 h-9 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors border border-white/20">
+                    <User className="w-4 h-4 text-white" />
                   </button>
-                  
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-2 hidden group-hover:block">
-                    <Link to="/profile" className="block px-4 py-2 text-gray-700 hover:bg-gray-50">
-                      Profile
+                  <div className="absolute right-0 mt-3 w-48 bg-white rounded-2xl shadow-xl border border-gray-100 py-1 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 translate-y-1 group-hover:translate-y-0">
+                    <div className="px-4 py-2 border-b border-gray-100">
+                      <p className="text-sm font-semibold text-gray-900">{user?.name}</p>
+                      <p className="text-xs text-gray-500">{user?.email}</p>
+                    </div>
+                    <Link to="/profile" className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
+                      <User className="w-4 h-4" /> Profile
                     </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 flex items-center space-x-2"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span>Logout</span>
+                    <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50">
+                      <LogOut className="w-4 h-4" /> Logout
                     </button>
                   </div>
                 </div>
               </>
             ) : (
               <>
-                <Link to="/login" className="text-gray-700 hover:text-primary-600 transition">
-                  Login
+                {/* CTA pill button */}
+                <Link
+                  to="/register"
+                  className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white text-sm font-semibold pl-2 pr-4 py-2 rounded-full transition-colors"
+                >
+                  <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </div>
+                  <span>Get Started</span>
                 </Link>
-                <Link to="/register" className="btn-primary">
-                  Sign Up
+
+                <Link
+                  to="/login"
+                  className="hidden sm:block text-sm font-medium text-white/70 hover:text-white transition-colors"
+                >
+                  Login
                 </Link>
               </>
             )}
-          </div>
 
-          {/* Mobile Right: Bell + Menu Button */}
-          <div className="md:hidden flex items-center space-x-1">
-            {isAuthenticated && <NotificationBell />}
             <button
               onClick={() => setShowMenu(!showMenu)}
+              className="md:hidden w-9 h-9 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors border border-white/20"
             >
-              <Menu className="w-6 h-6 text-gray-700" />
+              {showMenu ? <X className="w-4 h-4 text-white" /> : <Menu className="w-4 h-4 text-white" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Menu */}
-        {showMenu && (
-          <div className="md:hidden py-4 space-y-2">
-            <Link to="/shops" className="block py-2 text-gray-700" onClick={handleMenuClick}>
+        {/* Mobile dropdown — attached below pill */}
+        <div
+          className={`md:hidden mt-2 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden transition-all duration-300 ease-in-out ${
+            showMenu ? 'max-h-80 opacity-100' : 'max-h-0 opacity-0'
+          }`}
+        >
+          <div className="p-3 space-y-1">
+            <Link to="/shops" onClick={handleMenuClick}
+              className="flex items-center px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-xl transition-colors">
               Shops
             </Link>
             {isAuthenticated ? (
               <>
-                <Link to="/orders" className="block py-2 text-gray-700" onClick={handleMenuClick}>
+                <Link to="/orders" onClick={handleMenuClick}
+                  className="flex items-center px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-xl transition-colors">
                   Orders
                 </Link>
-                <Link to="/cart" className="block py-2 text-gray-700" onClick={handleMenuClick}>
-                  Cart ({totalItems})
-                </Link>
-                <Link to="/profile" className="block py-2 text-gray-700" onClick={handleMenuClick}>
+                <Link to="/profile" onClick={handleMenuClick}
+                  className="flex items-center px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-xl transition-colors">
                   Profile
                 </Link>
-                <button
-                  onClick={handleLogout}
-                  className="block w-full text-left py-2 text-gray-700"
-                >
+                <button onClick={handleLogout}
+                  className="w-full flex items-center px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-50 rounded-xl transition-colors">
                   Logout
                 </button>
               </>
             ) : (
               <>
-                <Link to="/login" className="block py-2 text-gray-700" onClick={handleMenuClick}>
+                <Link to="/login" onClick={handleMenuClick}
+                  className="flex items-center px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-xl transition-colors">
                   Login
                 </Link>
-                <Link to="/register" className="block py-2 text-gray-700" onClick={handleMenuClick}>
-                  Sign Up
+                <Link to="/register" onClick={handleMenuClick}
+                  className="flex items-center justify-center px-4 py-3 text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 rounded-xl transition-colors">
+                  Get Started
                 </Link>
               </>
             )}
           </div>
-        )}
+        </div>
+
       </div>
-    </nav>
+    </div>
   );
 }

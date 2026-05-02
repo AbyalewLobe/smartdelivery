@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { shopApi } from '../../api/shopApi';
+import { categoryApi } from '../../api/categoryApi';
 import { ShopCard } from '../../components/ui/ShopCard';
 import { Search } from 'lucide-react';
 
@@ -19,72 +20,95 @@ export function Shops() {
     }
   });
 
-  const categories = [
-    { value: '', label: 'All' },
-    { value: 'grocery', label: 'Grocery' },
-    { value: 'restaurant', label: 'Restaurant' },
-    { value: 'pharmacy', label: 'Pharmacy' },
-    { value: 'electronics', label: 'Electronics' },
-    { value: 'fashion', label: 'Fashion' },
-    { value: 'other', label: 'Other' },
-  ];
+  // Fetch dynamic shop categories from admin
+  const { data: categoriesData } = useQuery({
+    queryKey: ['shop-categories-public'],
+    queryFn: () => categoryApi.getCategories({ type: 'shop', activeOnly: true }),
+    staleTime: 60000 // cache for 1 min, auto-refetches when stale
+  });
+  const dynamicCategories = categoriesData?.data || [];
 
   const filteredShops = data?.filter((shop: any) =>
     shop.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    shop.description.toLowerCase().includes(searchQuery.toLowerCase())
+    shop.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-7xl mx-auto px-4">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Browse Shops</h1>
-          <p className="text-gray-600">Discover local shops and order your favorites</p>
-        </div>
+    <div className="min-h-screen bg-gray-950">
 
-        {/* Search Bar */}
-        <div className="mb-6">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+      {/* Hero Header */}
+      <section className="relative py-16 px-4 bg-gradient-to-br from-gray-900 via-primary-950 to-primary-900 overflow-hidden">
+        <div className="absolute top-0 left-1/3 w-80 h-80 bg-primary-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-primary-400/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div className="relative max-w-7xl mx-auto">
+          <span className="inline-block px-4 py-1.5 bg-white/5 text-primary-400 text-sm font-medium rounded-full mb-4 border border-white/10">
+            Discover
+          </span>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-3">
+            Browse <span className="text-primary-400">Shops</span>
+          </h1>
+          <p className="text-white/50 text-lg mb-8">Find local shops and order your favorites</p>
+
+          {/* Search */}
+          <div className="relative max-w-xl">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 w-5 h-5" />
             <input
               type="text"
               placeholder="Search shops..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none"
+              className="w-full pl-12 pr-4 py-3.5 bg-white/5 border border-white/10 rounded-2xl text-white placeholder-white/30 focus:outline-none focus:border-primary-500/50 focus:bg-white/10 transition-all"
             />
           </div>
         </div>
+      </section>
 
-        {/* Category Filters */}
-        <div className="mb-8 overflow-x-auto">
-          <div className="flex flex-wrap gap-3 pb-2">
-            {categories.map((cat) => (
+      {/* Category Filters */}
+      <div className="sticky top-16 z-30 bg-gray-950/90 backdrop-blur-sm border-b border-white/5 px-4 py-4">
+        <div className="max-w-7xl mx-auto overflow-x-auto">
+          <div className="flex gap-2 pb-1">
+            {/* Always show All */}
+            <button
+              onClick={() => setSearchParams({})}
+              className={`px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200 ${
+                category === ''
+                  ? 'bg-primary-500 text-white shadow-lg shadow-primary-900/40'
+                  : 'bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              All
+            </button>
+            {/* Dynamic categories from admin */}
+            {dynamicCategories.map((cat: any) => (
               <button
-                key={cat.value}
-                onClick={() => setSearchParams(cat.value ? { category: cat.value } : {})}
-                className={`px-8 py-3 rounded-full font-medium transition-all duration-200 shadow-sm whitespace-nowrap ${
-                  category === cat.value
-                    ? 'bg-gray-900 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-900 hover:text-white'
+                key={cat._id}
+                onClick={() => setSearchParams({ category: cat.name })}
+                className={`px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200 ${
+                  category === cat.name
+                    ? 'bg-primary-500 text-white shadow-lg shadow-primary-900/40'
+                    : 'bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10'
                 }`}
               >
-                {cat.label}
+                {cat.name}
               </button>
             ))}
           </div>
         </div>
+      </div>
 
-        {/* Shops Grid */}
+      {/* Shops Grid */}
+      <div className="max-w-7xl mx-auto px-4 py-12">
         {isLoading ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="card animate-pulse">
-                <div className="h-48 bg-gray-200 rounded-xl mb-4"></div>
-                <div className="h-6 bg-gray-200 rounded mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded mb-3"></div>
-                <div className="h-8 bg-gray-200 rounded"></div>
+              <div key={i} className="bg-white/5 border border-white/10 rounded-2xl overflow-hidden animate-pulse">
+                <div className="h-48 bg-white/5"></div>
+                <div className="p-5 space-y-3">
+                  <div className="h-5 bg-white/5 rounded-lg w-2/3"></div>
+                  <div className="h-4 bg-white/5 rounded-lg"></div>
+                  <div className="h-4 bg-white/5 rounded-lg w-3/4"></div>
+                </div>
               </div>
             ))}
           </div>
@@ -99,10 +123,10 @@ export function Shops() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-16">
+          <div className="text-center py-24">
             <div className="text-6xl mb-4">🏪</div>
-            <h3 className="text-2xl font-semibold text-gray-900 mb-2">No shops found</h3>
-            <p className="text-gray-600">Try adjusting your search or filters</p>
+            <h3 className="text-2xl font-semibold text-white mb-2">No shops found</h3>
+            <p className="text-white/40">Try adjusting your search or filters</p>
           </div>
         )}
       </div>

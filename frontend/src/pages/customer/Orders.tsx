@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { orderApi } from '../../api/orderApi';
 import { OrderStatusBadge } from '../../components/ui/OrderStatusBadge';
 import { formatPrice, formatDate } from '../../lib/utils';
-import { Package, ChevronRight } from 'lucide-react';
+import { Package, ChevronRight, ShoppingBag } from 'lucide-react';
 
 export function Orders() {
   const navigate = useNavigate();
@@ -28,21 +28,32 @@ export function Orders() {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">My Orders</h1>
+    <div className="min-h-screen bg-gray-950">
 
-        {/* Status Filters */}
-        <div className="mb-6 overflow-x-auto">
-          <div className="flex flex-wrap gap-3 pb-2">
+      {/* Hero Header */}
+      <section className="relative py-14 px-4 bg-gradient-to-br from-gray-900 via-primary-950 to-primary-900 overflow-hidden">
+        <div className="absolute top-0 right-1/3 w-72 h-72 bg-primary-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="relative max-w-4xl mx-auto">
+          <span className="inline-block px-4 py-1.5 bg-white/5 text-primary-400 text-sm font-medium rounded-full mb-4 border border-white/10">
+            My Account
+          </span>
+          <h1 className="text-4xl font-bold text-white">My <span className="text-primary-400">Orders</span></h1>
+          <p className="text-white/50 mt-2">Track and manage all your orders</p>
+        </div>
+      </section>
+
+      {/* Sticky Filters */}
+      <div className="sticky top-16 z-30 bg-gray-950/90 backdrop-blur-sm border-b border-white/5 px-4 py-4">
+        <div className="max-w-4xl mx-auto overflow-x-auto">
+          <div className="flex gap-2 pb-1">
             {statusFilters.map((filter) => (
               <button
                 key={filter.value}
                 onClick={() => setStatusFilter(filter.value)}
-                className={`px-8 py-3 rounded-full font-medium transition-all duration-200 shadow-sm whitespace-nowrap ${
+                className={`px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200 ${
                   statusFilter === filter.value
-                    ? 'bg-gray-900 text-white shadow-md'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-900 hover:text-white'
+                    ? 'bg-primary-500 text-white shadow-lg shadow-primary-900/40'
+                    : 'bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/10'
                 }`}
               >
                 {filter.label}
@@ -50,15 +61,17 @@ export function Orders() {
             ))}
           </div>
         </div>
+      </div>
 
-        {/* Orders List */}
+      {/* Orders List */}
+      <div className="max-w-4xl mx-auto px-4 py-10">
         {isLoading ? (
           <div className="space-y-4">
             {[...Array(3)].map((_, i) => (
-              <div key={i} className="card animate-pulse">
-                <div className="h-6 bg-gray-200 rounded mb-3"></div>
-                <div className="h-4 bg-gray-200 rounded mb-2"></div>
-                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              <div key={i} className="bg-white/5 border border-white/10 rounded-2xl p-5 animate-pulse space-y-3">
+                <div className="h-5 bg-white/5 rounded-lg w-1/3"></div>
+                <div className="h-4 bg-white/5 rounded-lg w-1/2"></div>
+                <div className="h-4 bg-white/5 rounded-lg w-1/4"></div>
               </div>
             ))}
           </div>
@@ -67,51 +80,54 @@ export function Orders() {
             {data.map((order: any) => (
               <div
                 key={order._id}
-                className="card cursor-pointer hover:shadow-lg transition-all"
                 onClick={() => navigate(`/orders/${order._id}`)}
+                className="group relative bg-white/5 border border-white/10 rounded-2xl p-5 cursor-pointer
+                  hover:bg-white/10 hover:border-primary-500/30 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary-900/20
+                  transition-all duration-300"
               >
                 <div className="flex items-start justify-between mb-4">
                   <div>
-                    <div className="flex items-center space-x-3 mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900">
+                    <div className="flex items-center gap-3 mb-1.5 flex-wrap">
+                      <h3 className="text-base font-bold text-white group-hover:text-primary-300 transition-colors">
                         Order #{order._id.slice(-8)}
                       </h3>
                       <OrderStatusBadge status={order.status} />
                     </div>
-                    <p className="text-gray-600 text-sm">
-                      {order.shopId?.name || 'Shop'}
-                    </p>
+                    <p className="text-white/40 text-sm">{order.shopId?.name || 'Shop'}</p>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-gray-400" />
+                  <ChevronRight className="w-5 h-5 text-white/20 group-hover:text-primary-400 group-hover:translate-x-1 transition-all flex-shrink-0" />
                 </div>
 
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center text-gray-600">
-                    <Package className="w-4 h-4 mr-2" />
-                    {order.items.length} items
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5 text-white/40 text-sm">
+                    <Package className="w-4 h-4" />
+                    <span>{order.items.length} item{order.items.length !== 1 ? 's' : ''}</span>
                   </div>
                   <div className="text-right">
-                    <div className="text-xl font-bold text-primary-600">
+                    <div className="text-lg font-bold text-primary-400">
                       {formatPrice(order.totalAmount)}
                     </div>
-                    <div className="text-gray-500 text-xs">
+                    <div className="text-white/30 text-xs mt-0.5">
                       {formatDate(order.createdAt)}
                     </div>
                   </div>
                 </div>
+
+                {/* Bottom accent */}
+                <div className="absolute bottom-0 left-0 h-0.5 w-0 bg-gradient-to-r from-primary-500 to-primary-300 group-hover:w-full transition-all duration-500 rounded-full"></div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="text-center py-16">
-            <div className="w-32 h-32 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
-              <Package className="w-16 h-16 text-gray-400" />
+          <div className="text-center py-24">
+            <div className="w-24 h-24 mx-auto mb-6 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center">
+              <ShoppingBag className="w-12 h-12 text-white/20" />
             </div>
-            <h3 className="text-2xl font-semibold text-gray-900 mb-2">No orders yet</h3>
-            <p className="text-gray-600 mb-6">Start shopping to place your first order</p>
+            <h3 className="text-2xl font-bold text-white mb-2">No orders yet</h3>
+            <p className="text-white/40 mb-8">Start shopping to place your first order</p>
             <button
               onClick={() => navigate('/shops')}
-              className="btn-primary"
+              className="px-8 py-3 bg-primary-500 hover:bg-primary-400 text-white font-semibold rounded-full transition-colors"
             >
               Browse Shops
             </button>

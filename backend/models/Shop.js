@@ -4,7 +4,6 @@ const shopSchema = new mongoose.Schema({
   name: { type: String, required: true },
   category: { 
     type: String, 
-    enum: ['grocery', 'restaurant', 'pharmacy', 'electronics', 'fashion', 'other'],
     required: true 
   },
   description: { type: String, required: true },

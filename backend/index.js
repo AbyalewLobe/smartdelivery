@@ -63,7 +63,7 @@ app.use('/uploads', express.static('uploads'));
 // Swagger Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   customCss: '.swagger-ui .topbar { display: none }',
-  customSiteTitle: 'Smart Deliver API Documentation'
+  customSiteTitle: 'Market Zone API Documentation'
 }));
 
 // Apply rate limiting to all API routes
@@ -83,13 +83,13 @@ app.use('/api/categories', categoryRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Smart Deliver API is running' });
+  res.json({ status: 'ok', message: 'Market Zone API is running' });
 });
 
 // API info
 app.get('/', (req, res) => {
   res.json({
-    message: 'Smart Deliver API',
+    message: 'Market Zone API',
     version: '1.0.0',
     documentation: '/api-docs'
   });

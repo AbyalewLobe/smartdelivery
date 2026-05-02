@@ -2,10 +2,17 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { adminOrderApi } from '../../api/adminApi';
-import { Button } from '../../components/ui/Button';
-import { Card } from '../../components/ui/Card';
-import { OrderStatusBadge } from '../../components/ui/OrderStatusBadge';
 import { formatPrice } from '../../lib/utils';
+import { Select } from '../../components/ui/Select';
+
+const statusColors: Record<string, string> = {
+  pending: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20',
+  confirmed: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+  collected: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
+  on_the_way: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
+  delivered: 'bg-green-500/10 text-green-400 border-green-500/20',
+  cancelled: 'bg-red-500/10 text-red-400 border-red-500/20',
+};
 
 export function Orders() {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
@@ -38,239 +45,141 @@ export function Orders() {
     { value: 'cancelled', label: 'Cancelled' },
   ];
 
-  const filteredOrders = Array.isArray(orders) 
-    ? orders.filter((order: any) => !statusFilter || order.status === statusFilter)
+  const filteredOrders = Array.isArray(orders)
+    ? orders.filter((o: any) => !statusFilter || o.status === statusFilter)
     : [];
 
-  if (isLoading) {
-    return <div className="flex justify-center p-8">Loading...</div>;
-  }
+  if (isLoading) return <div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div></div>;
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-start gap-4">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Orders Management</h1>
-          <p className="text-sm sm:text-base text-gray-600 mt-1">View and manage all orders</p>
-        </div>
+      <div>
+        <h1 className="text-xl font-bold text-white">Orders</h1>
+        <p className="text-white/40 text-sm mt-0.5">View and manage all orders</p>
       </div>
 
-      {/* Status Filters */}
-      <div className="overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
-        <div className="flex flex-wrap gap-2 pb-2">
-          {statusFilters.map((filter) => (
-            <button
-              key={filter.value}
-              onClick={() => setStatusFilter(filter.value)}
-              className={`px-6 py-2 rounded-full font-medium transition-all duration-200 shadow-sm whitespace-nowrap text-sm ${
-                statusFilter === filter.value
-                  ? 'bg-gray-900 text-white shadow-md'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-900 hover:text-white'
-              }`}
-            >
-              {filter.label}
-            </button>
-          ))}
-        </div>
+      {/* Filters */}
+      <div className="flex flex-wrap gap-2">
+        {statusFilters.map(f => (
+          <button key={f.value} onClick={() => setStatusFilter(f.value)}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap ${
+              statusFilter === f.value ? 'bg-primary-500 text-white' : 'bg-white/5 border border-white/10 text-white/50 hover:text-white hover:bg-white/10'
+            }`}>
+            {f.label}
+          </button>
+        ))}
       </div>
 
-      {/* Desktop Table View */}
-      <Card className="overflow-hidden hidden md:block">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Order ID
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Customer
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Shop
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Items
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Total
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredOrders.map((order: any) => (
-                <tr key={order._id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
-                      #{order._id.slice(-8)}
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      {new Date(order.createdAt).toLocaleDateString()}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      {order.customerId && typeof order.customerId === 'object' ? order.customerId.name : 'N/A'}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">
-                      {order.shopId && typeof order.shopId === 'object' ? order.shopId.name : 'N/A'}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900">{order.items.length}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-semibold text-gray-900">
-                      {formatPrice(order.totalAmount)}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <OrderStatusBadge status={order.status} />
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      onClick={() => setSelectedOrder(order)}
-                      className="text-blue-600 hover:text-blue-900"
-                    >
-                      Update
-                    </button>
-                  </td>
-                </tr>
+      {/* Desktop Table */}
+      <div className="hidden md:block bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-white/5">
+              {['Order ID', 'Customer', 'Phone', 'Delivery Address', 'Shop', 'Items', 'Total', 'Status', 'Actions'].map(h => (
+                <th key={h} className={`px-5 py-3 text-xs font-medium text-white/30 uppercase tracking-wider ${h === 'Actions' ? 'text-right' : 'text-left'}`}>{h}</th>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredOrders.length === 0 ? (
+              <tr><td colSpan={9} className="px-5 py-12 text-center text-white/30 text-sm">No orders found.</td></tr>
+            ) : filteredOrders.map((order: any, i: number) => (
+              <tr key={order._id} className={`border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors ${i % 2 !== 0 ? 'bg-white/[0.02]' : ''}`}>
+                <td className="px-5 py-3.5">
+                  <p className="text-sm font-medium text-white">#{order._id.slice(-8)}</p>
+                  <p className="text-xs text-white/30">{new Date(order.createdAt).toLocaleDateString()}</p>
+                </td>
+                <td className="px-5 py-3.5 text-sm text-white/70">{order.customerId?.name || 'N/A'}</td>
+                <td className="px-5 py-3.5 text-sm text-white/50">{order.customerId?.phone || '—'}</td>
+                <td className="px-5 py-3.5 text-sm text-white/50 max-w-[160px]">
+                  <p className="truncate">{order.deliveryAddress?.street || '—'}</p>
+                  <p className="text-xs text-white/30 truncate">{order.deliveryAddress?.city}</p>
+                </td>
+                <td className="px-5 py-3.5 text-sm text-white/70">{order.shopId?.name || 'N/A'}</td>
+                <td className="px-5 py-3.5 text-sm text-white/70">{order.items.length}</td>
+                <td className="px-5 py-3.5 text-sm font-semibold text-primary-400">{formatPrice(order.totalAmount)}</td>
+                <td className="px-5 py-3.5">
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium rounded-full border ${statusColors[order.status] || statusColors.pending}`}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                    {order.status.replace('_', ' ')}
+                  </span>
+                </td>
+                <td className="px-5 py-3.5 text-right">
+                  <button onClick={() => setSelectedOrder(order)} className="text-xs font-medium text-blue-400 hover:text-blue-300 transition-colors">Update</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-        {filteredOrders.length === 0 && (
-          <div className="p-8 text-center text-gray-500">
-            No orders found.
-          </div>
-        )}
-      </Card>
-
-      {/* Mobile Card View */}
+      {/* Mobile rows */}
       <div className="md:hidden space-y-3">
         {filteredOrders.map((order: any) => (
-          <Card key={order._id} className="p-4">
-            <div className="space-y-3">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h3 className="font-semibold text-gray-900">#{order._id.slice(-8)}</h3>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {new Date(order.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
-                <OrderStatusBadge status={order.status} />
+          <div key={order._id} className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+            <div className="flex justify-between items-start">
+              <div>
+                <p className="text-sm font-bold text-white">#{order._id.slice(-8)}</p>
+                <p className="text-xs text-white/30">{new Date(order.createdAt).toLocaleDateString()}</p>
               </div>
-              
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <p className="text-gray-500">Customer</p>
-                  <p className="font-medium text-gray-900">
-                    {order.customerId && typeof order.customerId === 'object' ? order.customerId.name : 'N/A'}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-gray-500">Shop</p>
-                  <p className="font-medium text-gray-900">
-                    {order.shopId && typeof order.shopId === 'object' ? order.shopId.name : 'N/A'}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-gray-500">Items</p>
-                  <p className="font-medium text-gray-900">{order.items.length}</p>
-                </div>
-                <div>
-                  <p className="text-gray-500">Total</p>
-                  <p className="font-semibold text-gray-900">{formatPrice(order.totalAmount)}</p>
-                </div>
-              </div>
-
-              <button
-                onClick={() => setSelectedOrder(order)}
-                className="w-full px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg font-medium"
-              >
-                Update Status
-              </button>
+              <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full border ${statusColors[order.status] || statusColors.pending}`}>
+                <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                {order.status.replace('_', ' ')}
+              </span>
             </div>
-          </Card>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div><p className="text-white/30 text-xs">Customer</p><p className="text-white/70">{order.customerId?.name || 'N/A'}</p></div>
+              <div><p className="text-white/30 text-xs">Phone</p><p className="text-white/70">{order.customerId?.phone || '—'}</p></div>
+              <div><p className="text-white/30 text-xs">Shop</p><p className="text-white/70">{order.shopId?.name || 'N/A'}</p></div>
+              <div><p className="text-white/30 text-xs">Items</p><p className="text-white/70">{order.items.length}</p></div>
+              <div className="col-span-2"><p className="text-white/30 text-xs">Address</p><p className="text-white/70">{order.deliveryAddress?.street}{order.deliveryAddress?.city ? `, ${order.deliveryAddress.city}` : ''}</p></div>
+              <div><p className="text-white/30 text-xs">Total</p><p className="text-primary-400 font-semibold">{formatPrice(order.totalAmount)}</p></div>
+            </div>
+            <button onClick={() => setSelectedOrder(order)} className="w-full py-2 text-xs font-medium text-blue-400 hover:text-blue-300 bg-blue-500/5 hover:bg-blue-500/10 border border-blue-500/10 rounded-xl transition-colors">
+              Update Status
+            </button>
+          </div>
         ))}
-
-        {filteredOrders.length === 0 && (
-          <Card className="p-8 text-center text-gray-500">
-            No orders found.
-          </Card>
-        )}
       </div>
 
+      {/* Status Modal */}
       {selectedOrder && (
-        <StatusUpdateModal
-          order={selectedOrder}
-          onClose={() => setSelectedOrder(null)}
-          onUpdate={(status, note) => {
-            updateStatusMutation.mutate({ id: selectedOrder._id, status, note });
-          }}
-        />
+        <StatusModal order={selectedOrder} onClose={() => setSelectedOrder(null)}
+          onUpdate={(status, note) => updateStatusMutation.mutate({ id: selectedOrder._id, status, note })} />
       )}
     </div>
   );
 }
 
-function StatusUpdateModal({ order, onClose, onUpdate }: { order: any; onClose: () => void; onUpdate: (status: string, note: string) => void }) {
+function StatusModal({ order, onClose, onUpdate }: { order: any; onClose: () => void; onUpdate: (s: string, n: string) => void }) {
   const [status, setStatus] = useState(order.status);
   const [note, setNote] = useState('');
-
   const statuses = ['pending', 'confirmed', 'collected', 'on_the_way', 'delivered', 'cancelled'];
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-md p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-4">Update Order Status</h2>
-        
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+      <div className="bg-gray-900 border border-white/10 rounded-2xl p-6 w-full max-w-md shadow-2xl">
+        <h2 className="text-lg font-bold text-white mb-5">Update Order Status</h2>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-            <select
+            <label className="block text-sm text-white/60 mb-1.5">Status</label>
+            <Select
               value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="input-field"
-            >
-              {statuses.map(s => (
-                <option key={s} value={s}>{s.replace('_', ' ').toUpperCase()}</option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Note (optional)</label>
-            <textarea
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              className="input-field"
-              rows={3}
-              placeholder="Add a note about this status change..."
+              onChange={setStatus}
+              options={statuses.map(s => ({ value: s, label: s.replace('_', ' ').toUpperCase() }))}
             />
           </div>
-
-          <div className="flex gap-3">
-            <Button onClick={() => onUpdate(status, note)} className="flex-1">
-              Update Status
-            </Button>
-            <Button variant="outline" onClick={onClose}>
-              Cancel
-            </Button>
+          <div>
+            <label className="block text-sm text-white/60 mb-1.5">Note (optional)</label>
+            <textarea value={note} onChange={e => setNote(e.target.value)} rows={3} placeholder="Add a note..."
+              className="w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/20 focus:outline-none focus:border-primary-500/50 text-sm resize-none" />
+          </div>
+          <div className="flex gap-3 pt-1">
+            <button onClick={() => onUpdate(status, note)} className="flex-1 py-2.5 bg-primary-500 hover:bg-primary-400 text-white rounded-xl text-sm font-semibold transition-colors">Update</button>
+            <button onClick={onClose} className="flex-1 py-2.5 bg-white/5 border border-white/10 text-white/60 hover:text-white rounded-xl text-sm font-medium transition-colors">Cancel</button>
           </div>
         </div>
-      </Card>
+      </div>
     </div>
   );
 }
-

@@ -25,7 +25,7 @@ export function Dashboard() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-500"></div>
       </div>
     );
   }
@@ -71,38 +71,38 @@ export function Dashboard() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
-        <p className="text-gray-600">Welcome back! Here's what's happening today.</p>
+        <h1 className="text-2xl font-bold text-white mb-1">Dashboard</h1>
+        <p className="text-white/40 text-sm">Welcome back! Here's what's happening today.</p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         {statCards.map((stat, index) => (
-          <Card key={index} className="p-6">
+          <div key={index} className="bg-white/5 border border-white/10 rounded-2xl p-5 hover:bg-white/10 hover:border-primary-500/20 transition-all duration-300">
             <div className="flex items-start justify-between mb-4">
-              <div className={`${stat.color} w-12 h-12 rounded-xl flex items-center justify-center`}>
-                <stat.icon className="text-white" size={24} />
+              <div className={`${stat.color} w-10 h-10 rounded-xl flex items-center justify-center opacity-90`}>
+                <stat.icon className="text-white" size={20} />
               </div>
-              <div className="flex items-center gap-1 text-green-600 text-sm font-medium">
-                <TrendingUp size={16} />
+              <div className="flex items-center gap-1 text-green-400 text-xs font-medium">
+                <TrendingUp size={12} />
                 {stat.trend}
               </div>
             </div>
-            <h3 className="text-gray-600 text-sm mb-1">{stat.title}</h3>
-            <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
-          </Card>
+            <p className="text-white/40 text-xs mb-1">{stat.title}</p>
+            <p className="text-2xl font-bold text-white">{stat.value}</p>
+          </div>
         ))}
       </div>
 
-      {/* Orders by Status */}
+      {/* Orders by Status + Recent Orders */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Orders by Status</h2>
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+          <h2 className="text-base font-bold text-white mb-5">Orders by Status</h2>
           <div className="space-y-3">
             {stats?.ordersByStatus && Object.entries(stats.ordersByStatus).map(([status, count]) => (
               <div key={status} className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className={`w-3 h-3 rounded-full ${
+                  <div className={`w-2.5 h-2.5 rounded-full ${
                     status === 'pending' ? 'bg-yellow-500' :
                     status === 'confirmed' ? 'bg-blue-500' :
                     status === 'collected' ? 'bg-purple-500' :
@@ -110,32 +110,29 @@ export function Dashboard() {
                     status === 'delivered' ? 'bg-green-500' :
                     'bg-red-500'
                   }`}></div>
-                  <span className="text-gray-700 capitalize">{status.replace('_', ' ')}</span>
+                  <span className="text-white/60 text-sm capitalize">{status.replace('_', ' ')}</span>
                 </div>
-                <span className="font-semibold text-gray-900">{count as number}</span>
+                <span className="font-semibold text-white text-sm">{count as number}</span>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
 
-        {/* Recent Orders */}
-        <Card className="p-6">
-          <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Orders</h2>
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+          <h2 className="text-base font-bold text-white mb-5">Recent Orders</h2>
           <div className="space-y-3">
             {Array.isArray(recentOrders) && recentOrders.slice(0, 5).map((order: any) => (
-              <div key={order._id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+              <div key={order._id} className="flex items-center justify-between py-2.5 border-b border-white/5 last:border-0">
                 <div>
-                  <p className="font-medium text-gray-900">Order #{order._id.slice(-6)}</p>
-                  <p className="text-sm text-gray-500">
-                    {new Date(order.createdAt).toLocaleDateString()}
-                  </p>
+                  <p className="text-sm font-medium text-white">#{order._id.slice(-6)}</p>
+                  <p className="text-xs text-white/30">{new Date(order.createdAt).toLocaleDateString()}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-gray-900">{formatPrice(order.totalAmount)}</p>
-                  <span className={`text-xs px-2 py-1 rounded-full ${
-                    order.status === 'delivered' ? 'bg-green-100 text-green-700' :
-                    order.status === 'cancelled' ? 'bg-red-100 text-red-700' :
-                    'bg-yellow-100 text-yellow-700'
+                  <p className="text-sm font-semibold text-primary-400">{formatPrice(order.totalAmount)}</p>
+                  <span className={`text-xs px-2 py-0.5 rounded-full ${
+                    order.status === 'delivered' ? 'bg-green-500/10 text-green-400' :
+                    order.status === 'cancelled' ? 'bg-red-500/10 text-red-400' :
+                    'bg-yellow-500/10 text-yellow-400'
                   }`}>
                     {order.status}
                   </span>
@@ -143,7 +140,7 @@ export function Dashboard() {
               </div>
             ))}
           </div>
-        </Card>
+        </div>
       </div>
     </div>
   );

@@ -9,7 +9,7 @@ const seedAdmin = async () => {
   try {
     await connectDB();
 
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@smartdeliver.com';
+    const adminEmail = process.env.ADMIN_EMAIL || 'labyalew@gmail.com';
     const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
 
     // Check if admin already exists

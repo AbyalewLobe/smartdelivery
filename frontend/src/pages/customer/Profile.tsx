@@ -3,209 +3,118 @@ import { useMutation } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useAuthStore } from '../../store/authStore';
 import { profileApi } from '../../api/profileApi';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { User, Camera } from 'lucide-react';
+import { User, Lock } from 'lucide-react';
 
 type TabType = 'details' | 'password';
 
 export function Profile() {
   const [activeTab, setActiveTab] = useState<TabType>('details');
   const { user, updateUser } = useAuthStore();
-  
-  const [isEditingName, setIsEditingName] = useState(false);
-  const [isEditingPhone, setIsEditingPhone] = useState(false);
-  
   const [name, setName] = useState(user?.name || '');
-  const [email] = useState(user?.email || '');
   const [phone, setPhone] = useState(user?.phone || '');
-
-  const tabs = [
-    { id: 'details' as TabType, label: 'My Details' },
-    { id: 'password' as TabType, label: 'Password' }
-  ];
+  const [isEditing, setIsEditing] = useState(false);
 
   const updateProfileMutation = useMutation({
     mutationFn: profileApi.updateProfile,
     onSuccess: (response) => {
-      const updatedUser = response.data.user;
-      updateUser(updatedUser);
-      toast.success('Profile updated successfully');
-      setIsEditingName(false);
-      setIsEditingPhone(false);
+      updateUser(response.data.user);
+      toast.success('Profile updated');
+      setIsEditing(false);
     },
-    onError: () => {
-      toast.error('Failed to update profile');
-    }
+    onError: () => toast.error('Failed to update profile')
   });
 
-  const handleSaveName = () => {
-    updateProfileMutation.mutate({ name, phone: user?.phone || '' });
-  };
-
-  const handleSavePhone = () => {
-    updateProfileMutation.mutate({ name: user?.name || '', phone });
-  };
+  const fieldClass = "w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/20 focus:outline-none focus:border-primary-500/50 text-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed";
+  const labelClass = "block text-sm text-white/50 mb-1.5";
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-2xl mx-auto px-4">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Account & Settings</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            {new Date().toLocaleString('en-US', { 
-              hour: 'numeric', 
-              minute: 'numeric', 
-              day: 'numeric', 
-              month: 'short', 
-              year: 'numeric',
-              hour12: true
-            })}
-          </p>
+    <div className="min-h-screen bg-gray-950">
+
+      {/* Hero Header */}
+      <section className="relative py-14 px-4 bg-gradient-to-br from-gray-900 via-primary-950 to-primary-900 overflow-hidden">
+        <div className="absolute top-0 right-1/3 w-72 h-72 bg-primary-500/20 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="relative max-w-2xl mx-auto">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 bg-primary-500/20 border border-primary-500/30 rounded-2xl flex items-center justify-center flex-shrink-0">
+              <span className="text-primary-400 text-2xl font-bold">{user?.name?.charAt(0).toUpperCase()}</span>
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-white">{user?.name}</h1>
+              <p className="text-white/40 text-sm mt-0.5">{user?.email}</p>
+            </div>
+          </div>
         </div>
+      </section>
+
+      <div className="max-w-2xl mx-auto px-4 py-8">
 
         {/* Tabs */}
-        <div className="flex space-x-8 border-b border-gray-200 mb-8">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`pb-3 px-1 font-medium transition-colors relative ${
+        <div className="flex gap-1 bg-white/5 border border-white/10 rounded-xl p-1 mb-8">
+          {([
+            { id: 'details', label: 'My Details', icon: User },
+            { id: 'password', label: 'Password', icon: Lock },
+          ] as { id: TabType; label: string; icon: any }[]).map(tab => (
+            <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium transition-all ${
                 activeTab === tab.id
-                  ? 'text-lime-600'
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
+                  ? 'bg-primary-500 text-white shadow-lg shadow-primary-900/40'
+                  : 'text-white/40 hover:text-white'
+              }`}>
+              <tab.icon className="w-4 h-4" />
               {tab.label}
-              {activeTab === tab.id && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-lime-600"></div>
-              )}
             </button>
           ))}
         </div>
 
-        {/* My Details Tab */}
+        {/* Details Tab */}
         {activeTab === 'details' && (
-          <div className="space-y-8">
-            {/* Basic Details */}
-            <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Basic Details</h2>
-              
-              {/* Profile Picture */}
-              <div className="flex items-center space-x-4 mb-8">
-                <div className="relative">
-                  <div className="w-24 h-24 rounded-full bg-gradient-to-br from-lime-400 to-lime-600 flex items-center justify-center">
-                    <User className="w-12 h-12 text-white" />
-                  </div>
-                  <button className="absolute bottom-0 right-0 w-8 h-8 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-50 transition">
-                    <Camera className="w-4 h-4 text-gray-600" />
+          <div className="space-y-5">
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-5">
+              <div className="flex items-center justify-between mb-2">
+                <h2 className="text-base font-bold text-white">Basic Details</h2>
+                {!isEditing ? (
+                  <button onClick={() => setIsEditing(true)}
+                    className="text-xs font-medium text-primary-400 hover:text-primary-300 transition-colors">
+                    Edit
                   </button>
-                </div>
-                <button className="text-lime-600 font-medium hover:text-lime-700 transition">
-                  Change
-                </button>
-              </div>
-
-              {/* Name Field */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Name
-                </label>
-                <div className="flex items-center space-x-3">
-                  <input
-                    type="text"
-                    disabled={!isEditingName}
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    className={`flex-1 px-4 py-3 rounded-xl border ${
-                      isEditingName 
-                        ? 'border-lime-500 bg-white' 
-                        : 'border-gray-200 bg-gray-50'
-                    } focus:outline-none focus:ring-2 focus:ring-lime-100 transition`}
-                  />
-                  {isEditingName ? (
-                    <Button
-                      onClick={handleSaveName}
-                      size="sm"
-                      isLoading={updateProfileMutation.isPending}
-                    >
-                      Save
-                    </Button>
-                  ) : (
+                ) : (
+                  <div className="flex gap-3">
+                    <button onClick={() => { setIsEditing(false); setName(user?.name || ''); setPhone(user?.phone || ''); }}
+                      className="text-xs font-medium text-white/40 hover:text-white transition-colors">Cancel</button>
                     <button
-                      type="button"
-                      onClick={() => setIsEditingName(true)}
-                      className="text-lime-600 font-medium hover:text-lime-700 transition px-4"
-                    >
-                      Edit
+                      onClick={() => updateProfileMutation.mutate({ name, phone })}
+                      disabled={updateProfileMutation.isPending}
+                      className="text-xs font-medium text-primary-400 hover:text-primary-300 transition-colors disabled:opacity-50">
+                      {updateProfileMutation.isPending ? 'Saving...' : 'Save'}
                     </button>
-                  )}
-                </div>
+                  </div>
+                )}
               </div>
 
-              {/* Email Field */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Email
-                </label>
-                <div className="flex items-center space-x-3">
-                  <input
-                    type="email"
-                    disabled
-                    value={email}
-                    className="flex-1 px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:outline-none transition cursor-not-allowed"
-                  />
-                  <span className="text-gray-400 text-sm px-4">Cannot edit</span>
-                </div>
+              <div>
+                <label className={labelClass}>Full Name</label>
+                <input value={name} onChange={e => setName(e.target.value)} disabled={!isEditing}
+                  placeholder="Your name" className={fieldClass} />
               </div>
 
-              {/* Phone Field */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Phone
-                </label>
-                <div className="flex items-center space-x-3">
-                  <input
-                    type="tel"
-                    disabled={!isEditingPhone}
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    className={`flex-1 px-4 py-3 rounded-xl border ${
-                      isEditingPhone 
-                        ? 'border-lime-500 bg-white' 
-                        : 'border-gray-200 bg-gray-50'
-                    } focus:outline-none focus:ring-2 focus:ring-lime-100 transition`}
-                  />
-                  {isEditingPhone ? (
-                    <Button
-                      onClick={handleSavePhone}
-                      size="sm"
-                      isLoading={updateProfileMutation.isPending}
-                    >
-                      Save
-                    </Button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => setIsEditingPhone(true)}
-                      className="text-lime-600 font-medium hover:text-lime-700 transition px-4"
-                    >
-                      Edit
-                    </button>
-                  )}
-                </div>
+              <div>
+                <label className={labelClass}>Email</label>
+                <input value={user?.email || ''} disabled type="email" className={fieldClass} />
+                <p className="mt-1 text-xs text-white/20">Email cannot be changed</p>
+              </div>
+
+              <div>
+                <label className={labelClass}>Phone</label>
+                <input value={phone} onChange={e => setPhone(e.target.value)} disabled={!isEditing}
+                  placeholder="Phone number" type="tel" className={fieldClass} />
               </div>
             </div>
 
-            {/* Delete Account */}
-            <div className="pt-8 border-t border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900 mb-3">Delete Profile</h2>
-              <p className="text-gray-600 text-sm mb-6">
-                Delete your account and all of your source data. This is irreversible.
-              </p>
-              <button className="px-6 py-3 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition shadow-md">
-                Delete Account
+            {/* Danger zone — subtle */}
+            <div className="pt-4 border-t border-white/5">
+              <p className="text-xs text-white/20 mb-2">Danger zone</p>
+              <button className="text-xs text-white/20 hover:text-red-400 transition-colors underline underline-offset-2">
+                Delete my account
               </button>
             </div>
           </div>
@@ -218,82 +127,51 @@ export function Profile() {
   );
 }
 
-// Password Tab Component
 function PasswordTab() {
-  const [formData, setFormData] = useState({
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
-  });
+  const [formData, setFormData] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
 
-  const changePasswordMutation = useMutation({
+  const mutation = useMutation({
     mutationFn: profileApi.changePassword,
-    onSuccess: () => {
-      toast.success('Password changed successfully');
-      setFormData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-    },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.message || 'Failed to change password');
-    }
+    onSuccess: () => { toast.success('Password changed'); setFormData({ currentPassword: '', newPassword: '', confirmPassword: '' }); },
+    onError: (error: any) => toast.error(error.response?.data?.message || 'Failed to change password')
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (formData.newPassword.length < 6) {
-      toast.error('Password must be at least 6 characters');
-      return;
-    }
-    
-    if (formData.newPassword !== formData.confirmPassword) {
-      toast.error('Passwords do not match');
-      return;
-    }
-    
-    changePasswordMutation.mutate({
-      currentPassword: formData.currentPassword,
-      newPassword: formData.newPassword
-    });
+    if (formData.newPassword.length < 6) return toast.error('Password must be at least 6 characters');
+    if (formData.newPassword !== formData.confirmPassword) return toast.error('Passwords do not match');
+    mutation.mutate({ currentPassword: formData.currentPassword, newPassword: formData.newPassword });
   };
 
+  const fieldClass = "w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/20 focus:outline-none focus:border-primary-500/50 text-sm transition-all";
+  const labelClass = "block text-sm text-white/50 mb-1.5";
+
   return (
-    <div>
-      <h2 className="text-xl font-bold text-gray-900 mb-6">Change Password</h2>
-      <form onSubmit={handleSubmit} className="space-y-6 max-w-md">
-        <Input
-          label="Current Password"
-          type="password"
-          placeholder="Enter current password"
-          value={formData.currentPassword}
-          onChange={(e) => setFormData({ ...formData, currentPassword: e.target.value })}
-          required
-        />
-
-        <Input
-          label="New Password"
-          type="password"
-          placeholder="Enter new password"
-          value={formData.newPassword}
-          onChange={(e) => setFormData({ ...formData, newPassword: e.target.value })}
-          required
-        />
-
-        <Input
-          label="Confirm New Password"
-          type="password"
-          placeholder="Confirm new password"
-          value={formData.confirmPassword}
-          onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-          required
-        />
-
-        <Button
-          type="submit"
-          className="w-full"
-          isLoading={changePasswordMutation.isPending}
-        >
-          Update Password
-        </Button>
+    <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
+      <h2 className="text-base font-bold text-white mb-6">Change Password</h2>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label className={labelClass}>Current Password</label>
+          <input type="password" placeholder="••••••••" value={formData.currentPassword}
+            onChange={e => setFormData({ ...formData, currentPassword: e.target.value })}
+            required className={fieldClass} />
+        </div>
+        <div>
+          <label className={labelClass}>New Password</label>
+          <input type="password" placeholder="••••••••" value={formData.newPassword}
+            onChange={e => setFormData({ ...formData, newPassword: e.target.value })}
+            required className={fieldClass} />
+        </div>
+        <div>
+          <label className={labelClass}>Confirm New Password</label>
+          <input type="password" placeholder="••••••••" value={formData.confirmPassword}
+            onChange={e => setFormData({ ...formData, confirmPassword: e.target.value })}
+            required className={fieldClass} />
+        </div>
+        <button type="submit" disabled={mutation.isPending}
+          className="w-full py-3 bg-primary-500 hover:bg-primary-400 text-white font-semibold rounded-xl transition-colors disabled:opacity-50 mt-2">
+          {mutation.isPending ? 'Updating...' : 'Update Password'}
+        </button>
       </form>
     </div>
   );

@@ -34,7 +34,7 @@ export const sendOrderConfirmation = async (order, customer) => {
       </p>
 
       <p style="margin-top: 30px;">You can track your order status in your account.</p>
-      <p>Best regards,<br>Smart Deliver Team</p>
+      <p>Best regards,<br>Bazaar+ Team</p>
     </div>
   `;
 
@@ -66,14 +66,14 @@ export const sendStatusUpdate = async (order, customer, newStatus) => {
       </div>
 
       ${newStatus === 'delivered' ? `
-        <p style="color: #10b981; font-weight: bold;">Thank you for choosing Smart Deliver!</p>
+        <p style="color: #10b981; font-weight: bold;">Thank you for choosing Bazaar+!</p>
       ` : ''}
 
       ${newStatus === 'cancelled' ? `
         <p>Cancellation reason: ${order.cancelReason}</p>
       ` : ''}
 
-      <p style="margin-top: 30px;">Best regards,<br>Smart Deliver Team</p>
+      <p style="margin-top: 30px;">Best regards,<br>Bazaar+ Team</p>
     </div>
   `;
 

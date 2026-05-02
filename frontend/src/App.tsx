@@ -21,7 +21,6 @@ import { OrderDetail } from './pages/customer/OrderDetail';
 import { Profile } from './pages/customer/Profile';
 
 // Admin Pages
-import { AdminLogin } from './pages/admin/AdminLogin';
 import { Dashboard } from './pages/admin/Dashboard';
 import { Shops as AdminShops } from './pages/admin/Shops';
 import { Products } from './pages/admin/Products';
@@ -76,7 +75,7 @@ function App() {
           </Route>
 
           {/* Admin Routes */}
-          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/login" element={<Login />} />
           <Route path="/admin" element={<AdminLayout />}>
             <Route index element={<Navigate to="/admin/dashboard" />} />
             <Route path="dashboard" element={<Dashboard />} />

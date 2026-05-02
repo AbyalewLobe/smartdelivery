@@ -10,7 +10,7 @@ interface ProductCardProps {
 
 export function ProductCard({ product, onAddToCart }: ProductCardProps) {
   return (
-    <div className="bg-white rounded-2xl overflow-hidden border-2 border-lime-400 hover:shadow-lg transition-all">
+    <div className="bg-white rounded-2xl overflow-hidden border-2 border-lime-400 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-xl hover:shadow-lime-100/60 group">
       <Link to={`/products/${product._id}`}>
         <div className="relative w-full pt-[100%] bg-gray-50">
           {product.images && product.images.length > 0 ? (

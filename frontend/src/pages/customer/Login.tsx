@@ -34,54 +34,51 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen gradient-bg flex items-center justify-center px-4 py-12">
-      <div className="max-w-md w-full">
-        <div className="card">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-primary-950 to-primary-900 flex items-center justify-center px-4 py-12 relative overflow-hidden">
+      {/* Blobs */}
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary-500/20 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-primary-400/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div className="relative w-full max-w-md">
+        {/* Card */}
+        <div className="bg-white/5 border border-white/10 backdrop-blur-sm rounded-3xl p-8 shadow-2xl shadow-black/40">
+
+          {/* Header */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <span className="text-white font-bold text-2xl">SD</span>
+            <div className="w-14 h-14 bg-primary-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <span className="text-white font-bold text-xl">B+</span>
             </div>
-            <h2 className="text-3xl font-bold text-gray-900">Welcome Back</h2>
-            <p className="text-gray-600 mt-2">Sign in to your account</p>
+            <h2 className="text-3xl font-bold text-white">Welcome Back</h2>
+            <p className="text-white/50 mt-1 text-sm">Sign in to your account</p>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <Input
-              label="Email"
-              type="email"
-              placeholder="your@email.com"
-              error={errors.email?.message}
-              {...register('email', {
-                required: 'Email is required',
-                pattern: {
-                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: 'Invalid email address'
-                }
-              })}
-            />
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            <div>
+              <label className="block text-sm font-medium text-white/70 mb-1.5">Email</label>
+              <input
+                type="email"
+                placeholder="your@email.com"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-primary-500/60 focus:bg-white/10 transition-all"
+                {...register('email', {
+                  required: 'Email is required',
+                  pattern: { value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i, message: 'Invalid email' }
+                })}
+              />
+              {errors.email && <p className="mt-1 text-xs text-red-400">{errors.email.message}</p>}
+            </div>
 
-            <Input
-              label="Password"
-              type="password"
-              placeholder="••••••••"
-              error={errors.password?.message}
-              {...register('password', {
-                required: 'Password is required',
-                minLength: {
-                  value: 6,
-                  message: 'Password must be at least 6 characters'
-                }
-              })}
-            />
-
-            <div className="flex items-center justify-between">
-              <label className="flex items-center">
-                <input type="checkbox" className="rounded border-gray-300 text-primary-600 focus:ring-primary-500" />
-                <span className="ml-2 text-sm text-gray-600">Remember me</span>
-              </label>
-              <Link to="/forgot-password" className="text-sm text-primary-600 hover:text-primary-700">
-                Forgot password?
-              </Link>
+            <div>
+              <label className="block text-sm font-medium text-white/70 mb-1.5">Password</label>
+              <input
+                type="password"
+                placeholder="••••••••"
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-white/30 focus:outline-none focus:border-primary-500/60 focus:bg-white/10 transition-all"
+                {...register('password', {
+                  required: 'Password is required',
+                  minLength: { value: 6, message: 'Min 6 characters' }
+                })}
+              />
+              {errors.password && <p className="mt-1 text-xs text-red-400">{errors.password.message}</p>}
             </div>
 
             <Button type="submit" className="w-full" isLoading={isLoading}>
@@ -90,9 +87,9 @@ export function Login() {
           </form>
 
           <div className="mt-6 text-center">
-            <p className="text-gray-600">
+            <p className="text-white/40 text-sm">
               Don't have an account?{' '}
-              <Link to="/register" className="text-primary-600 hover:text-primary-700 font-medium">
+              <Link to="/register" className="text-primary-400 hover:text-primary-300 font-medium transition-colors">
                 Sign up
               </Link>
             </p>

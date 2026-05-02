@@ -1,9 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { adminCustomerApi } from '../../api/adminApi';
-import { Button } from '../../components/ui/Button';
-import { Card } from '../../components/ui/Card';
-import { User, Mail, Phone, MapPin } from 'lucide-react';
 
 export function Customers() {
   const queryClient = useQueryClient();
@@ -23,71 +20,96 @@ export function Customers() {
     onError: () => toast.error('Failed to update status')
   });
 
-  if (isLoading) {
-    return <div className="flex justify-center p-8">Loading...</div>;
-  }
+  if (isLoading) return <div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div></div>;
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Customers Management</h1>
-        <p className="text-gray-600 mt-1">View and manage all customers</p>
+        <h1 className="text-xl font-bold text-white">Customers</h1>
+        <p className="text-white/40 text-sm mt-0.5">View and manage all customers</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {Array.isArray(customers) && customers.map((customer: any) => (
-          <Card key={customer._id} className="p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
-                  <User className="text-primary-600" size={24} />
+      {/* Desktop Table */}
+      <div className="hidden md:block bg-white/5 border border-white/10 rounded-2xl overflow-hidden">
+        <table className="w-full">
+          <thead>
+            <tr className="border-b border-white/5">
+              {['Customer', 'Email', 'Phone', 'Addresses', 'Joined', 'Status', 'Actions'].map(h => (
+                <th key={h} className={`px-5 py-3 text-xs font-medium text-white/30 uppercase tracking-wider ${h === 'Actions' ? 'text-right' : 'text-left'}`}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {!Array.isArray(customers) || customers.length === 0 ? (
+              <tr><td colSpan={7} className="px-5 py-12 text-center text-white/30 text-sm">No customers found.</td></tr>
+            ) : customers.map((c: any, i: number) => (
+              <tr key={c._id} className={`border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors ${i % 2 !== 0 ? 'bg-white/[0.02]' : ''}`}>
+                <td className="px-5 py-3.5">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 bg-primary-500/20 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-primary-400 text-xs font-bold">{c.name?.charAt(0).toUpperCase()}</span>
+                    </div>
+                    <span className="text-sm font-medium text-white">{c.name}</span>
+                  </div>
+                </td>
+                <td className="px-5 py-3.5 text-sm text-white/50">{c.email}</td>
+                <td className="px-5 py-3.5 text-sm text-white/50">{c.phone}</td>
+                <td className="px-5 py-3.5 text-sm text-white/50">{c.addresses?.length || 0}</td>
+                <td className="px-5 py-3.5 text-sm text-white/50">{new Date(c.createdAt).toLocaleDateString()}</td>
+                <td className="px-5 py-3.5">
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 text-xs font-medium rounded-full border ${
+                    c.isActive ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'
+                  }`}>
+                    <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                    {c.isActive ? 'Active' : 'Inactive'}
+                  </span>
+                </td>
+                <td className="px-5 py-3.5 text-right">
+                  <button
+                    onClick={() => confirm(`${c.isActive ? 'Deactivate' : 'Activate'} this customer?`) && toggleStatusMutation.mutate({ id: c._id, isActive: !c.isActive })}
+                    className={`text-xs font-medium transition-colors ${c.isActive ? 'text-red-400 hover:text-red-300' : 'text-green-400 hover:text-green-300'}`}>
+                    {c.isActive ? 'Deactivate' : 'Activate'}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile rows */}
+      <div className="md:hidden space-y-3">
+        {Array.isArray(customers) && customers.map((c: any) => (
+          <div key={c._id} className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 bg-primary-500/20 rounded-full flex items-center justify-center">
+                  <span className="text-primary-400 text-sm font-bold">{c.name?.charAt(0).toUpperCase()}</span>
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900">{customer.name}</h3>
-                  <span className={`text-xs px-2 py-1 rounded-full ${
-                    customer.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
-                  }`}>
-                    {customer.isActive ? 'Active' : 'Inactive'}
-                  </span>
+                  <p className="text-sm font-semibold text-white">{c.name}</p>
+                  <p className="text-xs text-white/30">{c.email}</p>
                 </div>
               </div>
+              <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full border ${
+                c.isActive ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'
+              }`}>
+                <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                {c.isActive ? 'Active' : 'Inactive'}
+              </span>
             </div>
-
-            <div className="space-y-2 mb-4">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Mail size={16} />
-                <span>{customer.email}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Phone size={16} />
-                <span>{customer.phone}</span>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <MapPin size={16} />
-                <span>{customer.addresses?.length || 0} addresses</span>
-              </div>
+            <div className="grid grid-cols-2 gap-2 text-sm">
+              <div><p className="text-white/30 text-xs">Phone</p><p className="text-white/60">{c.phone}</p></div>
+              <div><p className="text-white/30 text-xs">Joined</p><p className="text-white/60">{new Date(c.createdAt).toLocaleDateString()}</p></div>
             </div>
-
-            <div className="text-sm text-gray-500 mb-4">
-              Joined {new Date(customer.createdAt).toLocaleDateString()}
-            </div>
-
-            <Button
-              variant="outline"
-              size="sm"
-              className="w-full"
-              onClick={() => {
-                if (confirm(`${customer.isActive ? 'Deactivate' : 'Activate'} this customer?`)) {
-                  toggleStatusMutation.mutate({ 
-                    id: customer._id, 
-                    isActive: !customer.isActive 
-                  });
-                }
-              }}
-            >
-              {customer.isActive ? 'Deactivate' : 'Activate'}
-            </Button>
-          </Card>
+            <button
+              onClick={() => confirm(`${c.isActive ? 'Deactivate' : 'Activate'} this customer?`) && toggleStatusMutation.mutate({ id: c._id, isActive: !c.isActive })}
+              className={`w-full py-2 text-xs font-medium rounded-xl border transition-colors ${
+                c.isActive ? 'text-red-400 bg-red-500/5 border-red-500/10 hover:bg-red-500/10' : 'text-green-400 bg-green-500/5 border-green-500/10 hover:bg-green-500/10'
+              }`}>
+              {c.isActive ? 'Deactivate' : 'Activate'}
+            </button>
+          </div>
         ))}
       </div>
     </div>

@@ -5,24 +5,13 @@ import { toast } from 'sonner';
 import { productApi } from '../../api/productApi';
 import { useCartStore } from '../../store/cartStore';
 import { formatPrice } from '../../lib/utils';
-import { 
-  ArrowLeft, 
-  Heart, 
-  Star, 
-  MapPin,
-  Minus, 
-  Plus,
-  Package,
-  Clock,
-  Database
-} from 'lucide-react';
+import { ArrowLeft, MapPin, Minus, Plus, Package, ShoppingCart } from 'lucide-react';
 
 export function ProductDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
-  const [isFavorite, setIsFavorite] = useState(false);
   const { addItem } = useCartStore();
 
   const { data: product, isLoading } = useQuery({
@@ -33,10 +22,8 @@ export function ProductDetail() {
 
   const handleAddToCart = () => {
     if (!product) return;
-    
     const shopId = typeof product.shopId === 'object' ? product.shopId._id : product.shopId;
     const shopName = typeof product.shopId === 'object' ? product.shopId.name : 'Shop';
-    
     addItem(shopId, shopName, {
       productId: product._id,
       name: product.name,
@@ -44,32 +31,27 @@ export function ProductDetail() {
       quantity,
       image: product.images?.[0]
     });
-    
     toast.success(`Added ${quantity} item(s) to cart!`);
-  };
-
-  const toggleFavorite = () => {
-    setIsFavorite(!isFavorite);
-    toast.success(isFavorite ? 'Removed from favorites' : 'Added to favorites');
   };
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-lime-50 to-lime-100">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary-500"></div>
       </div>
     );
   }
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-lime-50 to-lime-100 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-950 flex items-center justify-center">
         <div className="text-center">
-          <p className="text-gray-600 mb-4">Product not found</p>
-          <button
-            onClick={() => navigate(-1)}
-            className="px-6 py-3 bg-gray-900 text-white rounded-full font-medium"
-          >
+          <div className="w-20 h-20 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <Package className="w-10 h-10 text-white/20" />
+          </div>
+          <p className="text-white/40 mb-6">Product not found</p>
+          <button onClick={() => navigate(-1)}
+            className="px-6 py-2.5 bg-primary-500 hover:bg-primary-400 text-white font-semibold rounded-full transition-colors">
             Go Back
           </button>
         </div>
@@ -82,147 +64,113 @@ export function ProductDetail() {
   const shopAddress = typeof product.shopId === 'object' ? product.shopId.address : '';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-gradient-to-br from-gray-50 to-gray-100 px-4 py-4">
-        <div className="flex items-center justify-between max-w-2xl mx-auto">
-          <button
-            onClick={() => navigate(-1)}
-            className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-md hover:shadow-lg transition"
-          >
-            <ArrowLeft size={20} className="text-gray-700" />
-          </button>
-          <h1 className="text-lg font-bold text-gray-900">Details</h1>
-          <button
-            onClick={toggleFavorite}
-            className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-md hover:shadow-lg transition"
-          >
-            <Heart 
-              size={20} 
-              className={isFavorite ? 'text-red-500 fill-red-500' : 'text-red-500'}
-            />
+    <div className="min-h-screen bg-gray-950">
+
+      {/* Hero with image */}
+      <section className="relative bg-gradient-to-br from-gray-900 via-primary-950 to-primary-900 overflow-hidden">
+        <div className="absolute top-0 right-1/3 w-72 h-72 bg-primary-500/20 rounded-full blur-3xl pointer-events-none"></div>
+
+        {/* Back button */}
+        <div className="relative max-w-5xl mx-auto px-4 pt-6 pb-4">
+          <button onClick={() => navigate(-1)}
+            className="flex items-center gap-2 text-white/40 hover:text-white text-sm transition-colors">
+            <ArrowLeft className="w-4 h-4" />
+            Back
           </button>
         </div>
-      </div>
 
-      <div className="max-w-2xl mx-auto px-4 pb-8">
-        {/* Product Image */}
-        <div className="mb-6">
-          <div className="relative rounded-2xl aspect-square max-w-md mx-auto overflow-hidden bg-white">
-            {product.images && product.images.length > 0 ? (
-              <img
-                src={product.images[selectedImage]}
-                alt={product.name}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center">
-                <Package size={80} className="text-gray-300" />
+        {/* Image */}
+        <div className="relative max-w-5xl mx-auto px-4 pb-10">
+          <div className="relative max-w-sm mx-auto md:mx-0">
+            <div className="aspect-square rounded-3xl overflow-hidden bg-white/5 border border-white/10 shadow-2xl shadow-black/40">
+              {product.images && product.images.length > 0 ? (
+                <img src={product.images[selectedImage]} alt={product.name}
+                  className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <Package className="w-20 h-20 text-white/10" />
+                </div>
+              )}
+            </div>
+
+            {/* Image dots */}
+            {product.images && product.images.length > 1 && (
+              <div className="flex justify-center gap-2 mt-4">
+                {product.images.map((_: string, i: number) => (
+                  <button key={i} onClick={() => setSelectedImage(i)}
+                    className={`h-1.5 rounded-full transition-all ${
+                      selectedImage === i ? 'w-6 bg-primary-400' : 'w-1.5 bg-white/20'
+                    }`} />
+                ))}
               </div>
             )}
           </div>
+        </div>
+      </section>
 
-          {/* Image Dots */}
-          {product.images && product.images.length > 1 && (
-            <div className="flex justify-center gap-2 mt-4">
-              {product.images.map((_: string, index: number) => (
-                <button
-                  key={index}
-                  onClick={() => setSelectedImage(index)}
-                  className={`h-2 rounded-full transition-all ${
-                    selectedImage === index
-                      ? 'w-8 bg-lime-400'
-                      : 'w-2 bg-gray-300'
-                  }`}
-                />
-              ))}
-            </div>
+      {/* Product info */}
+      <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+
+        {/* Name + shop */}
+        <div>
+          <h1 className="text-3xl font-bold text-white mb-2">{product.name}</h1>
+          <Link to={`/shops/${shopId}`}
+            className="inline-flex items-center gap-1.5 text-sm text-white/40 hover:text-primary-400 transition-colors">
+            <MapPin className="w-3.5 h-3.5" />
+            {shopAddress || shopName}
+          </Link>
+        </div>
+
+        {/* Badges */}
+        <div className="flex flex-wrap gap-3">
+          <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border ${
+            product.isAvailable && product.stock > 0
+              ? 'bg-green-500/10 text-green-400 border-green-500/20'
+              : 'bg-red-500/10 text-red-400 border-red-500/20'
+          }`}>
+            <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+            {product.isAvailable && product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+          </span>
+          {product.category && (
+            <span className="inline-flex px-3 py-1.5 text-xs font-medium rounded-full bg-primary-500/10 text-primary-400 border border-primary-500/20">
+              {product.category}
+            </span>
           )}
         </div>
 
-        {/* Product Info */}
-        <div className="space-y-8">
-          {/* Title and Quantity */}
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1">
-              <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                {product.name}
-              </h2>
-              
-              {/* Location */}
-              <Link
-                to={`/shops/${shopId}`}
-                className="flex items-center gap-2 text-gray-500 hover:text-primary-600 transition"
-              >
-                <MapPin size={16} />
-                <span className="text-sm">{shopAddress || shopName}</span>
-              </Link>
-            </div>
+        {/* Description */}
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
+          <p className="text-white/60 text-sm leading-relaxed">{product.description}</p>
+        </div>
 
-            {/* Quantity Controls */}
-            <div className="flex items-center gap-3 bg-white rounded-full px-2 py-2 shadow-md">
-              <button
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="w-8 h-8 flex items-center justify-center text-gray-600 hover:text-gray-900 transition"
-                disabled={quantity <= 1}
-              >
-                <Minus size={18} strokeWidth={3} />
-              </button>
-              <span className="text-lg font-bold text-gray-900 w-8 text-center">
-                {quantity}
-              </span>
-              <button
-                onClick={() => setQuantity(Math.min(product.stock, quantity + 1))}
-                className="w-8 h-8 flex items-center justify-center bg-lime-400 rounded-full hover:bg-lime-500 transition"
-                disabled={quantity >= product.stock}
-              >
-                <Plus size={18} strokeWidth={3} className="text-gray-900" />
-              </button>
-            </div>
-          </div>
-
-          {/* Status Badges */}
-          <div className="flex items-center gap-4 flex-wrap">
-            <div className="flex items-center gap-2 text-sm">
-              <Database size={18} className="text-green-500" />
-              <span className="text-gray-700 font-medium">10 left</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <Clock size={18} className="text-blue-500" />
-              <span className="text-gray-700">Time 10 min</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm">
-              <Star size={18} className="text-yellow-400 fill-yellow-400" />
-              <span className="text-gray-900 font-semibold">4.5 Ratting</span>
-            </div>
-          </div>
-
-          {/* Description */}
+        {/* Quantity + Add to cart */}
+        <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
           <div>
-            <p className="text-gray-600 leading-relaxed">
-              {product.description}
-              {product.description && product.description.length > 150 && (
-                <button className="text-primary-600 font-medium ml-1">
-                  See More...
-                </button>
-              )}
-            </p>
+            <p className="text-xs text-white/30 mb-1">Total amount</p>
+            <p className="text-3xl font-bold text-white">{formatPrice(product.price * quantity)}</p>
+            <p className="text-xs text-white/30 mt-0.5">{formatPrice(product.price)} each</p>
           </div>
 
-          {/* Add to Cart Section */}
-          <div className="mt-6 flex items-center justify-between  gap-4">
-            <div>
-              <p className="text-sm text-gray-500 mb-1">Total amount</p>
-              <p className="text-2xl font-bold text-gray-900">
-                {formatPrice(product.price * quantity)}
-              </p>
+          <div className="flex items-center gap-4">
+            {/* Quantity controls */}
+            <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-full px-3 py-2">
+              <button onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}
+                className="w-7 h-7 flex items-center justify-center text-white/50 hover:text-white disabled:opacity-30 transition-colors">
+                <Minus className="w-4 h-4" />
+              </button>
+              <span className="text-white font-bold w-6 text-center">{quantity}</span>
+              <button onClick={() => setQuantity(Math.min(product.stock, quantity + 1))} disabled={quantity >= product.stock}
+                className="w-7 h-7 flex items-center justify-center bg-primary-500 hover:bg-primary-400 rounded-full disabled:opacity-30 transition-colors">
+                <Plus className="w-4 h-4 text-white" />
+              </button>
             </div>
-            <button
-              onClick={handleAddToCart}
+
+            {/* Add to cart */}
+            <button onClick={handleAddToCart}
               disabled={!product.isAvailable || product.stock === 0}
-              className="px-4 py-2 bg-gray-900 text-white rounded-full font-semibold items-center text-lg hover:bg-gray-800 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
-            >
-              Add to cart
+              className="flex items-center gap-2 px-6 py-3 bg-primary-500 hover:bg-primary-400 text-white font-semibold rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary-900/40">
+              <ShoppingCart className="w-4 h-4" />
+              Add to Cart
             </button>
           </div>
         </div>

@@ -85,7 +85,7 @@ export const createOrder = async (req, res) => {
       await sendOrderConfirmation(order, req.user);
       await sendOrderToAdmin(order, req.user);
       
-      // Create in-app notification
+      // In-app notification for customer
       await createNotification(
         req.user._id,
         'order_placed',
@@ -94,6 +94,19 @@ export const createOrder = async (req, res) => {
         order._id,
         'Order'
       );
+
+      // In-app notification for all admins
+      const admins = await User.find({ role: 'admin', isActive: true }).select('_id');
+      await Promise.all(admins.map(admin =>
+        createNotification(
+          admin._id,
+          'order_placed',
+          'New Order Received',
+          `New order #${order._id.toString().slice(-8)} from ${req.user.name} — ${order.totalAmount.toFixed(2)} ETB`,
+          order._id,
+          'Order'
+        )
+      ));
     } catch (emailError) {
       console.error('Email notification error:', emailError);
     }
