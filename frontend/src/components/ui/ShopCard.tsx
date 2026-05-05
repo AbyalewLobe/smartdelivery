@@ -1,13 +1,32 @@
 import { Shop } from '../../types';
-import { getImageUrl } from '../../lib/utils';
+import { getImageUrl, getLocalized } from '../../lib/utils';
 import { MapPin, Package } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface ShopCardProps {
   shop: Shop;
   onClick: () => void;
+  categories?: any[]; // Optional categories for localized display
 }
 
-export function ShopCard({ shop, onClick }: ShopCardProps) {
+export function ShopCard({ shop, onClick, categories = [] }: ShopCardProps) {
+  const { i18n } = useTranslation();
+  const name = getLocalized(shop.name, i18n.language);
+  const description = getLocalized(shop.description, i18n.language);
+  
+  // Helper function to get localized category name
+  const getCategoryDisplayName = (categoryValue: string): string => {
+    const category = categories.find((cat: any) => {
+      const catValue = typeof cat.name === 'object' ? cat.name.en : cat.name;
+      return catValue === categoryValue;
+    });
+    
+    if (category) {
+      return getLocalized(category.name, i18n.language);
+    }
+    return categoryValue; // Fallback to original value
+  };
+  
   const categoryColors: Record<string, string> = {
     grocery: 'bg-green-500/10 text-green-400 border-green-500/20',
     restaurant: 'bg-orange-500/10 text-orange-400 border-orange-500/20',
@@ -29,7 +48,7 @@ export function ShopCard({ shop, onClick }: ShopCardProps) {
         {shop.logoUrl ? (
           <img
             src={getImageUrl(shop.logoUrl)}
-            alt={shop.name}
+            alt={name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
@@ -42,21 +61,21 @@ export function ShopCard({ shop, onClick }: ShopCardProps) {
 
         {/* Category badge on image */}
         <span className={`absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-medium border ${categoryColors[shop.category] || categoryColors.other}`}>
-          {shop.category}
+          {getCategoryDisplayName(shop.category)}
         </span>
       </div>
 
       {/* Content */}
       <div className="p-5">
         <h3 className="text-lg font-bold text-white mb-1 group-hover:text-primary-300 transition-colors">
-          {shop.name}
+          {name}
         </h3>
-        <p className="text-white/40 text-sm mb-4 line-clamp-2">{shop.description}</p>
+        <p className="text-white/40 text-sm mb-4 line-clamp-2">{description}</p>
 
         <div className="flex items-center justify-between text-xs text-white/30">
           <div className="flex items-center gap-1">
             <MapPin className="w-3.5 h-3.5" />
-            <span className="truncate max-w-[140px]">{shop.address}</span>
+            <span className="truncate max-w-[140px]">{getLocalized(shop.address, i18n.language)}</span>
           </div>
           {shop.productCount !== undefined && (
             <div className="flex items-center gap-1">

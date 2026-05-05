@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { dashboardApi } from '../../api/adminApi';
 import { Card } from '../../components/ui/Card';
 import { 
@@ -12,6 +13,7 @@ import {
 import { formatPrice } from '../../lib/utils';
 
 export function Dashboard() {
+  const { t } = useTranslation();
   const { data: stats, isLoading } = useQuery({
     queryKey: ['dashboard-stats'],
     queryFn: () => dashboardApi.getStats().then(res => res.data.data)
@@ -32,35 +34,35 @@ export function Dashboard() {
 
   const statCards = [
     {
-      title: 'Orders Today',
+      title: t('admin.orders_today'),
       value: stats?.ordersToday || 0,
       icon: ShoppingCart,
       color: 'bg-blue-500',
       trend: '+12%'
     },
     {
-      title: 'Pending Orders',
+      title: t('admin.pending_orders'),
       value: stats?.pendingOrders || 0,
       icon: Package,
       color: 'bg-yellow-500',
       trend: '-5%'
     },
     {
-      title: 'Revenue Today',
+      title: t('admin.revenue_today'),
       value: formatPrice(stats?.revenueToday || 0),
       icon: DollarSign,
       color: 'bg-green-500',
       trend: '+18%'
     },
     {
-      title: 'Total Customers',
+      title: t('admin.total_customers'),
       value: stats?.totalCustomers || 0,
       icon: Users,
       color: 'bg-purple-500',
       trend: '+8%'
     },
     {
-      title: 'Active Shops',
+      title: t('admin.active_shops'),
       value: stats?.activeShops || 0,
       icon: Store,
       color: 'bg-pink-500',
@@ -71,8 +73,8 @@ export function Dashboard() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-white mb-1">Dashboard</h1>
-        <p className="text-white/40 text-sm">Welcome back! Here's what's happening today.</p>
+        <h1 className="text-2xl font-bold text-white mb-1">{t('admin.dashboard')}</h1>
+        <p className="text-white/40 text-sm">{t('admin.dashboard_welcome')}</p>
       </div>
 
       {/* Stats Grid */}
@@ -97,7 +99,7 @@ export function Dashboard() {
       {/* Orders by Status + Recent Orders */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-          <h2 className="text-base font-bold text-white mb-5">Orders by Status</h2>
+          <h2 className="text-base font-bold text-white mb-5">{t('admin.orders_by_status')}</h2>
           <div className="space-y-3">
             {stats?.ordersByStatus && Object.entries(stats.ordersByStatus).map(([status, count]) => (
               <div key={status} className="flex items-center justify-between">
@@ -110,7 +112,7 @@ export function Dashboard() {
                     status === 'delivered' ? 'bg-green-500' :
                     'bg-red-500'
                   }`}></div>
-                  <span className="text-white/60 text-sm capitalize">{status.replace('_', ' ')}</span>
+                  <span className="text-white/60 text-sm">{t(`admin.status_${status}`)}</span>
                 </div>
                 <span className="font-semibold text-white text-sm">{count as number}</span>
               </div>
@@ -119,7 +121,7 @@ export function Dashboard() {
         </div>
 
         <div className="bg-white/5 border border-white/10 rounded-2xl p-6">
-          <h2 className="text-base font-bold text-white mb-5">Recent Orders</h2>
+          <h2 className="text-base font-bold text-white mb-5">{t('admin.recent_orders')}</h2>
           <div className="space-y-3">
             {Array.isArray(recentOrders) && recentOrders.slice(0, 5).map((order: any) => (
               <div key={order._id} className="flex items-center justify-between py-2.5 border-b border-white/5 last:border-0">
@@ -134,7 +136,7 @@ export function Dashboard() {
                     order.status === 'cancelled' ? 'bg-red-500/10 text-red-400' :
                     'bg-yellow-500/10 text-yellow-400'
                   }`}>
-                    {order.status}
+                    {t(`admin.status_${order.status}`)}
                   </span>
                 </div>
               </div>

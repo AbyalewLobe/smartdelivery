@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { orderApi } from '../../api/orderApi';
 import { OrderStatusBadge } from '../../components/ui/OrderStatusBadge';
 import { formatPrice, formatDate } from '../../lib/utils';
 import { Package, ChevronRight, ShoppingBag } from 'lucide-react';
 
 export function Orders() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState('');
 
@@ -19,12 +21,12 @@ export function Orders() {
   });
 
   const statusFilters = [
-    { value: '', label: 'All' },
-    { value: 'pending', label: 'Pending' },
-    { value: 'confirmed', label: 'Confirmed' },
-    { value: 'on_the_way', label: 'On the Way' },
-    { value: 'delivered', label: 'Delivered' },
-    { value: 'cancelled', label: 'Cancelled' },
+    { value: '', label: t('orders.all') },
+    { value: 'pending', label: t('orders.pending') },
+    { value: 'confirmed', label: t('orders.confirmed') },
+    { value: 'on_the_way', label: t('orders.on_the_way') },
+    { value: 'delivered', label: t('orders.delivered') },
+    { value: 'cancelled', label: t('orders.cancelled') },
   ];
 
   return (
@@ -35,10 +37,10 @@ export function Orders() {
         <div className="absolute top-0 right-1/3 w-72 h-72 bg-primary-500/20 rounded-full blur-3xl pointer-events-none"></div>
         <div className="relative max-w-4xl mx-auto">
           <span className="inline-block px-4 py-1.5 bg-white/5 text-primary-400 text-sm font-medium rounded-full mb-4 border border-white/10">
-            My Account
+            {t('orders.my_account')}
           </span>
-          <h1 className="text-4xl font-bold text-white">My <span className="text-primary-400">Orders</span></h1>
-          <p className="text-white/50 mt-2">Track and manage all your orders</p>
+          <h1 className="text-4xl font-bold text-white">{t('orders.title').split(' ')[0]} <span className="text-primary-400">{t('orders.title').split(' ').slice(1).join(' ')}</span></h1>
+          <p className="text-white/50 mt-2">{t('orders.subtitle')}</p>
         </div>
       </section>
 
@@ -101,7 +103,7 @@ export function Orders() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-1.5 text-white/40 text-sm">
                     <Package className="w-4 h-4" />
-                    <span>{order.items.length} item{order.items.length !== 1 ? 's' : ''}</span>
+                    <span>{order.items.length} {t('orders.items')}</span>
                   </div>
                   <div className="text-right">
                     <div className="text-lg font-bold text-primary-400">
@@ -123,13 +125,13 @@ export function Orders() {
             <div className="w-24 h-24 mx-auto mb-6 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center">
               <ShoppingBag className="w-12 h-12 text-white/20" />
             </div>
-            <h3 className="text-2xl font-bold text-white mb-2">No orders yet</h3>
-            <p className="text-white/40 mb-8">Start shopping to place your first order</p>
+            <h3 className="text-2xl font-bold text-white mb-2">{t('orders.no_orders')}</h3>
+            <p className="text-white/40 mb-8">{t('orders.no_orders_desc')}</p>
             <button
               onClick={() => navigate('/shops')}
               className="px-8 py-3 bg-primary-500 hover:bg-primary-400 text-white font-semibold rounded-full transition-colors"
             >
-              Browse Shops
+              {t('home.browse_shops')}
             </button>
           </div>
         )}

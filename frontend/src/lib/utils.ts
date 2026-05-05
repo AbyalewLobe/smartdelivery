@@ -4,6 +4,13 @@ export function cn(...inputs: ClassValue[]) {
   return clsx(inputs);
 }
 
+// Get localized string based on current i18n language
+export function getLocalized(obj: any, lang: string): string {
+  if (!obj) return '';
+  if (typeof obj === 'string') return obj;
+  return obj[lang] || obj.en || obj.am || '';
+}
+
 export function formatPrice(price: number): string {
   return `${price.toFixed(2)} ETB`;
 }

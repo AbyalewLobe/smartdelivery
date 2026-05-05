@@ -84,30 +84,39 @@ export const getProductById = async (req, res) => {
 // Create product with multiple images
 export const createProduct = async (req, res) => {
   try {
-    const { shopId, name, description, price, category, stock } = req.body;
+    const { shopId, name, description, price, stock } = req.body;
 
-    // Validate shop exists
     const shop = await Shop.findById(shopId);
-    if (!shop) {
-      return res.status(404).json({ success: false, message: 'Shop not found' });
-    }
+    if (!shop) return res.status(404).json({ success: false, message: 'Shop not found' });
 
     let images = [];
     let imagePublicIds = [];
 
-    // Upload images to Cloudinary if files exist
     if (req.files && req.files.length > 0) {
       const uploadResults = await uploadMultipleToCloudinary(req.files, 'products');
-      images = uploadResults.map(result => result.url);
-      imagePublicIds = uploadResults.map(result => result.publicId);
+      images = uploadResults.map(r => r.url);
+      imagePublicIds = uploadResults.map(r => r.publicId);
+    }
+
+    // Parse JSON strings sent via FormData with error handling
+    let parsedName, parsedDesc;
+    try {
+      parsedName = typeof name === 'string' ? JSON.parse(name) : name;
+    } catch (e) {
+      parsedName = { en: name, am: '' };
+    }
+    
+    try {
+      parsedDesc = typeof description === 'string' ? JSON.parse(description) : description;
+    } catch (e) {
+      parsedDesc = { en: description, am: '' };
     }
 
     const product = await Product.create({
       shopId,
-      name,
-      description,
+      name: parsedName,
+      description: parsedDesc,
       price: parseFloat(price),
-      category,
       stock: parseInt(stock) || 0,
       images,
       imagePublicIds
@@ -133,13 +142,24 @@ export const updateProduct = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
-    const { name, description, price, category, stock } = req.body;
+    const { name, description, price, stock } = req.body;
 
-    product.name = name || product.name;
-    product.description = description || product.description;
-    product.price = price ? parseFloat(price) : product.price;
-    product.category = category || product.category;
-    product.stock = stock !== undefined ? parseInt(stock) : product.stock;
+    if (name) {
+      try {
+        product.name = typeof name === 'string' ? JSON.parse(name) : name;
+      } catch (e) {
+        product.name = { en: name, am: product.name?.am || '' };
+      }
+    }
+    if (description) {
+      try {
+        product.description = typeof description === 'string' ? JSON.parse(description) : description;
+      } catch (e) {
+        product.description = { en: description, am: product.description?.am || '' };
+      }
+    }
+    if (price) product.price = parseFloat(price);
+    if (stock !== undefined) product.stock = parseInt(stock);
 
     // Handle new images
     if (req.files && req.files.length > 0) {

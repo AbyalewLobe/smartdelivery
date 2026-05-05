@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { authApi } from '../../api/authApi';
 import { useAuthStore } from '../../store/authStore';
 import { Button } from '../../components/ui/Button';
@@ -15,6 +16,7 @@ interface RegisterForm {
 }
 
 export function Register() {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const { setAuth } = useAuthStore();
   const navigate = useNavigate();
@@ -69,17 +71,17 @@ export function Register() {
             <div className="w-14 h-14 bg-primary-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <span className="text-white font-bold text-xl">B+</span>
             </div>
-            <h2 className="text-3xl font-bold text-white">Create Account</h2>
-            <p className="text-white/50 mt-1 text-sm">Join Bazaar+ today</p>
+            <h2 className="text-3xl font-bold text-white">{t('register.title')}</h2>
+            <p className="text-white/50 mt-1 text-sm">{t('register.subtitle')}</p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {field('Full Name', 'name', 'text', 'John Doe')}
-            {field('Email', 'email', 'email', 'your@email.com')}
-            {field('Phone Number', 'phone', 'tel', '0912345678')}
+            {field(t('register.name'), 'name', 'text', 'John Doe')}
+            {field(t('register.email'), 'email', 'email', 'your@email.com')}
+            {field(t('register.phone'), 'phone', 'tel', '0912345678')}
 
             <div>
-              <label className="block text-sm font-medium text-white/70 mb-1.5">Password</label>
+              <label className="block text-sm font-medium text-white/70 mb-1.5">{t('register.password')}</label>
               <input
                 type="password"
                 placeholder="••••••••"
@@ -90,7 +92,7 @@ export function Register() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-white/70 mb-1.5">Confirm Password</label>
+              <label className="block text-sm font-medium text-white/70 mb-1.5">{t('register.confirm_password')}</label>
               <input
                 type="password"
                 placeholder="••••••••"
@@ -104,15 +106,15 @@ export function Register() {
             </div>
 
             <Button type="submit" className="w-full mt-2" isLoading={isLoading}>
-              Create Account
+              {t('register.create')}
             </Button>
           </form>
 
           <div className="mt-6 text-center">
             <p className="text-white/40 text-sm">
-              Already have an account?{' '}
+              {t('register.have_account')}{' '}
               <Link to="/login" className="text-primary-400 hover:text-primary-300 font-medium transition-colors">
-                Sign in
+                {t('register.signin')}
               </Link>
             </p>
           </div>

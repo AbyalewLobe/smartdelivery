@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { notificationApi, Notification } from '../../api/notificationApi';
 import { useNotificationStore } from '../../store/notificationStore';
 import { useNavigate } from 'react-router-dom';
@@ -47,6 +48,7 @@ function formatTime(dateString: string) {
 }
 
 export const NotificationBell = () => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -126,7 +128,7 @@ export const NotificationBell = () => {
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-white/5 flex-shrink-0">
             <div className="flex items-center gap-2">
-              <h3 className="text-base font-bold text-white">Notifications</h3>
+              <h3 className="text-base font-bold text-white">{t('notifications.title')}</h3>
               {unreadCount > 0 && (
                 <span className="px-2 py-0.5 text-xs font-bold bg-red-500/20 text-red-400 rounded-full border border-red-500/20">
                   {unreadCount}
@@ -139,7 +141,7 @@ export const NotificationBell = () => {
                 className="flex items-center gap-1.5 text-xs font-medium text-primary-400 hover:text-primary-300 transition-colors"
               >
                 <Check className="w-3.5 h-3.5" />
-                Mark as read
+                {t('notifications.mark_read')}
               </button>
             )}
           </div>
@@ -151,14 +153,20 @@ export const NotificationBell = () => {
                 <div className="w-14 h-14 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center mb-4">
                   <Bell className="w-7 h-7 text-white/20" />
                 </div>
-                <p className="text-white/40 text-sm">No notifications yet</p>
+                <p className="text-white/40 text-sm">{t('notifications.empty')}</p>
               </div>
             ) : (
               groups.map(group => (
                 <div key={group.label}>
                   {/* Date group label */}
                   <div className="px-5 pt-4 pb-2">
-                    <span className="text-xs font-medium text-white/30 uppercase tracking-wider">{group.label}</span>
+                    <span className="text-xs font-medium text-white/30 uppercase tracking-wider">
+                      {group.label === 'Today'
+                        ? t('notifications.today')
+                        : group.label === 'Yesterday'
+                        ? t('notifications.yesterday')
+                        : t('notifications.earlier')}
+                    </span>
                   </div>
 
                   {group.items.map((notification) => {

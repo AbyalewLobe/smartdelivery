@@ -1,11 +1,14 @@
 import { Link } from 'react-router-dom';
 import { Truck, Shield, Clock, ShoppingBag } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '../../components/ui/Button';
 import { useIsAuthenticated } from '../../store/authStore';
 import { useQuery } from '@tanstack/react-query';
 import { categoryApi } from '../../api/categoryApi';
+import { getLocalized } from '../../lib/utils';
 
 export function Home() {
+  const { t, i18n } = useTranslation();
   const isAuthenticated = useIsAuthenticated();
 
   const { data: categoriesData } = useQuery({
@@ -18,23 +21,23 @@ export function Home() {
   const features = [
     {
       icon: <Truck className="w-8 h-8" />,
-      title: 'Fast Delivery',
-      description: 'Get your orders delivered quickly to your doorstep'
+      title: t('home.fast_delivery'),
+      description: t('home.fast_delivery_desc'),
     },
     {
       icon: <Shield className="w-8 h-8" />,
-      title: 'Secure Payment',
-      description: 'Multiple payment options with secure transactions'
+      title: t('home.secure_payment'),
+      description: t('home.secure_payment_desc'),
     },
     {
       icon: <Clock className="w-8 h-8" />,
-      title: 'Track Orders',
-      description: 'Real-time tracking of your order status'
+      title: t('home.track_orders'),
+      description: t('home.track_orders_desc'),
     },
     {
       icon: <ShoppingBag className="w-8 h-8" />,
-      title: 'Wide Selection',
-      description: 'Shop from multiple stores in one place'
+      title: t('home.wide_selection'),
+      description: t('home.wide_selection_desc'),
     },
   ];
 
@@ -50,29 +53,33 @@ export function Home() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
               <h1 className="text-5xl md:text-6xl font-bold text-white mb-6">
-                Discover
+                {t('home.hero_title')}
                 <br />
-                <span className="text-primary-400">Amazing Products,</span>
-                <br />
-                <span className="text-primary-300">From Trusted Local Shops</span>
+                <span className="text-primary-300">{t('home.hero_subtitle')}</span>
               </h1>
               <p className="text-lg text-white/80 mb-8">
-                Order from your favorite local shops and get everything delivered to your door.
-                Fresh products, fast delivery, all in one place.
+                {t('home.hero_desc')}
               </p>
               <Link to="/shops">
                 <Button size="lg" className="text-lg px-10 shadow-xl shadow-primary-900/50">
-                  Start Shopping
+                  {t('home.start_shopping')}
                 </Button>
               </Link>
             </div>
 
             <div className="relative hidden md:block">
-              <div className="w-full h-96 bg-white/5 backdrop-blur-sm rounded-3xl flex items-center justify-center border border-white/10">
-                <div className="text-center">
-                  <div className="text-8xl mb-4">🛍️</div>
-                  <p className="text-2xl font-semibold text-white/90">Bazaar+</p>
-                </div>
+              {/* Ambient glow blobs */}
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-primary-500/25 rounded-full blur-3xl animate-glow-pulse pointer-events-none"></div>
+              <div className="absolute top-1/4 right-0 w-40 h-40 bg-primary-300/15 rounded-full blur-2xl animate-float-slow pointer-events-none"></div>
+              <div className="absolute bottom-1/4 left-0 w-32 h-32 bg-primary-400/10 rounded-full blur-2xl animate-float pointer-events-none"></div>
+
+              {/* Floating logo — no card, no circle */}
+              <div className="relative flex items-center justify-center h-96 animate-float">
+                <img
+                  src="/sarah_andJoseph2-removebg-preview.png"
+                  alt="Sarah and Joseph"
+                  className="w-96 h-auto drop-shadow-[0_20px_60px_rgba(34,197,94,0.35)] animate-fade-up transition-all duration-500 hover:scale-110 hover:drop-shadow-[0_30px_80px_rgba(34,197,94,0.6)] cursor-pointer"
+                />
               </div>
             </div>
           </div>
@@ -85,19 +92,19 @@ export function Home() {
 
         <div className="relative max-w-7xl mx-auto text-center">
           <span className="inline-block px-4 py-1.5 bg-white/5 text-primary-400 text-sm font-medium rounded-full mb-4 border border-white/10">
-            Browse by Category
+            {t('home.browse_by_category')}
           </span>
           <h2 className="text-4xl font-bold text-white mb-12">
-            Shop by <span className="text-primary-400">Category</span>
+            {t('home.shop_by_category').split(' ').slice(0, -1).join(' ')} <span className="text-primary-400">{t('home.shop_by_category').split(' ').slice(-1)}</span>
           </h2>
           <div className="flex flex-wrap justify-center gap-3">
             {categories.map((category: any) => (
               <Link
                 key={category._id}
-                to={`/shops?category=${category.name}`}
+                to={`/shops?category=${category.name?.en || category.name}`}
               >
                 <button className="px-7 py-3 bg-white/5 border border-white/10 text-white/70 hover:text-white hover:bg-primary-500/20 hover:border-primary-500/50 font-medium rounded-full transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-primary-900/30">
-                  {category.name}
+                  {getLocalized(category.name, i18n.language)}
                 </button>
               </Link>
             ))}
@@ -140,13 +147,11 @@ export function Home() {
             {/* Content Side */}
             <div className="order-1 md:order-2">
               <h2 className="text-4xl font-bold text-gray-900 mb-6">
-                Your Shopping,
-                <span className="text-primary-600"> Simplified</span>
+                {t('home.your_shopping')}
+                <span className="text-primary-600"> {t('home.simplified')}</span>
               </h2>
               <p className="text-lg text-gray-600 mb-6">
-                Experience the joy of hassle-free shopping with Bazaar+.
-                Browse thousands of products, compare prices, and get everything 
-                delivered right to your doorstep.
+                {t('home.shopping_desc')}
               </p>
               <ul className="space-y-4 mb-8">
                 <li className="flex items-start gap-3">
@@ -156,8 +161,8 @@ export function Home() {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">Multiple Stores</h3>
-                    <p className="text-gray-600">Shop from all your favorite stores in one place</p>
+                    <h3 className="font-semibold text-gray-900">{t('home.multiple_stores')}</h3>
+                    <p className="text-gray-600">{t('home.multiple_stores_desc')}</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
@@ -167,8 +172,8 @@ export function Home() {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">Same Day Delivery</h3>
-                    <p className="text-gray-600">Get your orders delivered on the same day</p>
+                    <h3 className="font-semibold text-gray-900">{t('home.same_day')}</h3>
+                    <p className="text-gray-600">{t('home.same_day_desc')}</p>
                   </div>
                 </li>
                 <li className="flex items-start gap-3">
@@ -178,14 +183,14 @@ export function Home() {
                     </svg>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">Easy Returns</h3>
-                    <p className="text-gray-600">Hassle-free returns and refunds</p>
+                    <h3 className="font-semibold text-gray-900">{t('home.easy_returns')}</h3>
+                    <p className="text-gray-600">{t('home.easy_returns_desc')}</p>
                   </div>
                 </li>
               </ul>
               <Link to="/shops">
                 <Button size="lg">
-                  Explore Shops
+                  {t('home.explore_shops')}
                 </Button>
               </Link>
             </div>
@@ -204,11 +209,11 @@ export function Home() {
         <div className="relative max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <span className="inline-block px-4 py-1.5 bg-white/5 text-primary-400 text-sm font-medium rounded-full mb-4 border border-white/10">
-              Why Bazaar+
+              {t('home.why_choose')}
             </span>
             <h2 className="text-4xl md:text-5xl font-bold text-white">
-              Built for the way<br />
-              <span className="text-primary-400">you shop</span>
+              {t('home.why_built')}<br />
+              <span className="text-primary-400">{t('home.you_shop')}</span>
             </h2>
           </div>
 
@@ -256,24 +261,23 @@ export function Home() {
           <div className="absolute bottom-0 left-1/3 w-64 h-64 bg-primary-400/10 rounded-full blur-3xl pointer-events-none"></div>
           <div className="relative max-w-3xl mx-auto text-center">
             <span className="inline-block px-4 py-1.5 bg-white/10 text-primary-300 text-sm font-medium rounded-full mb-6 border border-white/10">
-              Join Bazaar+ Today
+              {t('home.join_today')}
             </span>
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-5 leading-tight">
-              Ready to Start<br />
-              <span className="text-primary-400">Shopping Smarter?</span>
+              {t('home.cta_title')}
             </h2>
             <p className="text-lg text-white/60 mb-10 max-w-xl mx-auto">
-              Join thousands of happy customers and get your favorite products delivered today.
+              {t('home.cta_desc')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/register">
                 <Button size="lg" className="px-10 shadow-xl shadow-primary-900/50">
-                  Create Free Account
+                  {t('home.create_account')}
                 </Button>
               </Link>
               <Link to="/shops">
                 <button className="px-10 py-3 rounded-xl border border-white/20 text-white/80 hover:bg-white/10 transition-colors text-sm font-medium">
-                  Browse Shops
+                  {t('home.browse_shops')}
                 </button>
               </Link>
             </div>
@@ -283,4 +287,3 @@ export function Home() {
     </div>
   );
 }
-

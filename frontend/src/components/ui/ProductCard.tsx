@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { Product } from '../../types';
-import { getImageUrl, formatPrice } from '../../lib/utils';
+import { getImageUrl, formatPrice, getLocalized } from '../../lib/utils';
 import { Plus } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface ProductCardProps {
   product: Product;
@@ -9,6 +10,8 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, onAddToCart }: ProductCardProps) {
+  const { i18n } = useTranslation();
+  const name = getLocalized(product.name, i18n.language);
   return (
     <div className="bg-white rounded-2xl overflow-hidden border-2 border-lime-400 transition-all duration-300 ease-out hover:-translate-y-1.5 hover:shadow-xl hover:shadow-lime-100/60 group">
       <Link to={`/products/${product._id}`}>
@@ -16,7 +19,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
           {product.images && product.images.length > 0 ? (
             <img
               src={getImageUrl(product.images[0])}
-              alt={product.name}
+              alt={name}
               className="absolute inset-0 w-full h-full object-cover"
             />
           ) : (
@@ -51,7 +54,7 @@ export function ProductCard({ product, onAddToCart }: ProductCardProps) {
       <Link to={`/products/${product._id}`}>
         <div className="p-3">
           <h3 className="text-sm font-bold text-gray-900 mb-1 line-clamp-1">
-            {product.name}
+            {name}
           </h3>
           
           <div className="flex items-center justify-between text-xs">

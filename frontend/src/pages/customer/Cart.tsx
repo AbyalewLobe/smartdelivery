@@ -1,10 +1,12 @@
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useCartStore, useTotalAmount } from '../../store/cartStore';
 import { getImageUrl, formatPrice } from '../../lib/utils';
 import { Button } from '../../components/ui/Button';
 import { Minus, Plus, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 
 export function Cart() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { items, shopName, updateQuantity, removeItem, clearCart } = useCartStore();
   const totalAmount = useTotalAmount();
@@ -16,13 +18,13 @@ export function Cart() {
           <div className="w-24 h-24 mx-auto mb-6 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center">
             <ShoppingBag className="w-12 h-12 text-white/20" />
           </div>
-          <h2 className="text-3xl font-bold text-white mb-2">Your cart is empty</h2>
-          <p className="text-white/40 mb-8">Add some products to get started</p>
+          <h2 className="text-3xl font-bold text-white mb-2">{t('cart.empty')}</h2>
+          <p className="text-white/40 mb-8">{t('cart.empty_desc')}</p>
           <button
             onClick={() => navigate('/shops')}
             className="px-8 py-3 bg-primary-500 hover:bg-primary-400 text-white font-semibold rounded-full transition-colors"
           >
-            Browse Shops
+            {t('cart.browse_shops')}
           </button>
         </div>
       </div>
@@ -41,15 +43,15 @@ export function Cart() {
               {shopName}
             </span>
             <h1 className="text-4xl font-bold text-white">
-              Shopping <span className="text-primary-400">Cart</span>
+              {t('cart.title').split(' ')[0]} <span className="text-primary-400">{t('cart.title').split(' ').slice(1).join(' ')}</span>
             </h1>
-            <p className="text-white/50 mt-2">{items.length} item{items.length !== 1 ? 's' : ''}</p>
+            <p className="text-white/50 mt-2">{items.length} {t('cart.items')}</p>
           </div>
           <button
             onClick={clearCart}
             className="text-red-400 hover:text-red-300 text-sm font-medium transition-colors mt-2"
           >
-            Clear all
+            {t('cart.clear_all')}
           </button>
         </div>
       </section>
@@ -122,7 +124,7 @@ export function Cart() {
           {/* Summary */}
           <div className="lg:col-span-1">
             <div className="sticky top-24 bg-white/5 border border-white/10 rounded-2xl p-6">
-              <h2 className="text-lg font-bold text-white mb-6">Order Summary</h2>
+              <h2 className="text-lg font-bold text-white mb-6">{t('cart.order_summary')}</h2>
 
               <div className="space-y-3 mb-6">
                 {items.map((item) => (
@@ -135,7 +137,7 @@ export function Cart() {
 
               <div className="border-t border-white/10 pt-4 mb-6">
                 <div className="flex items-center justify-between">
-                  <span className="text-white/60 font-medium">Total</span>
+                  <span className="text-white/60 font-medium">{t('cart.total')}</span>
                   <span className="text-2xl font-bold text-primary-400">{formatPrice(totalAmount)}</span>
                 </div>
               </div>
@@ -144,7 +146,7 @@ export function Cart() {
                 onClick={() => navigate('/checkout')}
                 className="w-full flex items-center justify-center gap-2 py-3.5 bg-primary-500 hover:bg-primary-400 text-white font-semibold rounded-xl transition-colors shadow-lg shadow-primary-900/40"
               >
-                Checkout
+                {t('cart.checkout')}
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { authApi } from '../../api/authApi';
 import { useAuthStore } from '../../store/authStore';
 import { Input } from '../../components/ui/Input';
@@ -13,6 +14,7 @@ interface LoginForm {
 }
 
 export function Login() {
+  const { t } = useTranslation();
   const [isLoading, setIsLoading] = useState(false);
   const { setAuth } = useAuthStore();
   const navigate = useNavigate();
@@ -48,13 +50,13 @@ export function Login() {
             <div className="w-14 h-14 bg-primary-500 rounded-2xl flex items-center justify-center mx-auto mb-4">
               <span className="text-white font-bold text-xl">B+</span>
             </div>
-            <h2 className="text-3xl font-bold text-white">Welcome Back</h2>
-            <p className="text-white/50 mt-1 text-sm">Sign in to your account</p>
+            <h2 className="text-3xl font-bold text-white">{t('login.title')}</h2>
+            <p className="text-white/50 mt-1 text-sm">{t('login.subtitle')}</p>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             <div>
-              <label className="block text-sm font-medium text-white/70 mb-1.5">Email</label>
+              <label className="block text-sm font-medium text-white/70 mb-1.5">{t('login.email')}</label>
               <input
                 type="email"
                 placeholder="your@email.com"
@@ -68,7 +70,7 @@ export function Login() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-white/70 mb-1.5">Password</label>
+              <label className="block text-sm font-medium text-white/70 mb-1.5">{t('login.password')}</label>
               <input
                 type="password"
                 placeholder="••••••••"
@@ -82,15 +84,15 @@ export function Login() {
             </div>
 
             <Button type="submit" className="w-full" isLoading={isLoading}>
-              Sign In
+              {t('login.signin')}
             </Button>
           </form>
 
           <div className="mt-6 text-center">
             <p className="text-white/40 text-sm">
-              Don't have an account?{' '}
+              {t('login.no_account')}{' '}
               <Link to="/register" className="text-primary-400 hover:text-primary-300 font-medium transition-colors">
-                Sign up
+                {t('login.signup')}
               </Link>
             </p>
           </div>

@@ -1,16 +1,19 @@
 import { NavLink } from 'react-router-dom';
 import { LayoutDashboard, Store, Package, ShoppingCart, Users, Tag, X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const menuItems = [
-  { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { path: '/admin/shops', icon: Store, label: 'Shops' },
-  { path: '/admin/products', icon: Package, label: 'Products' },
-  { path: '/admin/categories', icon: Tag, label: 'Categories' },
-  { path: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
-  { path: '/admin/customers', icon: Users, label: 'Customers' },
+  { path: '/admin/dashboard', icon: LayoutDashboard, label: 'admin.dashboard' },
+  { path: '/admin/shops', icon: Store, label: 'admin.shops' },
+  { path: '/admin/products', icon: Package, label: 'admin.products' },
+  { path: '/admin/categories', icon: Tag, label: 'admin.categories' },
+  { path: '/admin/orders', icon: ShoppingCart, label: 'admin.orders' },
+  { path: '/admin/customers', icon: Users, label: 'admin.customers' },
 ];
 
 export function AdminSidebar({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const { t } = useTranslation();
+  
   return (
     <aside className={`
       fixed left-0 top-14 h-[calc(100vh-3.5rem)] w-60 bg-gradient-to-b from-gray-900 via-primary-950 to-gray-900 border-r border-white/5 z-40
@@ -20,7 +23,7 @@ export function AdminSidebar({ isOpen, onClose }: { isOpen: boolean; onClose: ()
     `}>
       {/* Mobile close */}
       <div className="flex items-center justify-between px-4 py-3 lg:hidden border-b border-white/5">
-        <span className="text-sm font-medium text-white/50">Menu</span>
+        <span className="text-sm font-medium text-white/50">{t('common.menu')}</span>
         <button onClick={onClose} className="w-7 h-7 bg-white/5 hover:bg-white/10 rounded-lg flex items-center justify-center transition-colors">
           <X size={14} className="text-white/50" />
         </button>
@@ -43,7 +46,7 @@ export function AdminSidebar({ isOpen, onClose }: { isOpen: boolean; onClose: ()
             {({ isActive }) => (
               <>
                 <item.icon size={17} className={isActive ? 'text-primary-400' : 'text-white/30 group-hover:text-white/60'} />
-                <span>{item.label}</span>
+                <span>{t(item.label)}</span>
               </>
             )}
           </NavLink>

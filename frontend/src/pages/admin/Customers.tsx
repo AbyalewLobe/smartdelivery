@@ -1,9 +1,14 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { adminCustomerApi } from '../../api/adminApi';
+import { ConfirmDialog } from '../../components/ui/ConfirmDialog';
 
 export function Customers() {
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
+  const [confirmStatus, setConfirmStatus] = useState<any>(null);
 
   const { data: customers, isLoading } = useQuery({
     queryKey: ['admin-customers'],
@@ -15,9 +20,10 @@ export function Customers() {
       adminCustomerApi.updateCustomerStatus(id, isActive),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-customers'] });
-      toast.success('Customer status updated');
+      toast.success(t('admin.customer_status_updated'));
+      setConfirmStatus(null);
     },
-    onError: () => toast.error('Failed to update status')
+    onError: () => toast.error(t('admin.operation_failed'))
   });
 
   if (isLoading) return <div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-500"></div></div>;
@@ -25,8 +31,8 @@ export function Customers() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-white">Customers</h1>
-        <p className="text-white/40 text-sm mt-0.5">View and manage all customers</p>
+        <h1 className="text-xl font-bold text-white">{t('admin.customers')}</h1>
+        <p className="text-white/40 text-sm mt-0.5">{t('admin.manage_customers')}</p>
       </div>
 
       {/* Desktop Table */}
@@ -34,14 +40,14 @@ export function Customers() {
         <table className="w-full">
           <thead>
             <tr className="border-b border-white/5">
-              {['Customer', 'Email', 'Phone', 'Addresses', 'Joined', 'Status', 'Actions'].map(h => (
-                <th key={h} className={`px-5 py-3 text-xs font-medium text-white/30 uppercase tracking-wider ${h === 'Actions' ? 'text-right' : 'text-left'}`}>{h}</th>
+              {[t('admin.customer'), t('admin.email'), t('admin.phone'), t('admin.addresses'), t('admin.joined'), t('common.status'), t('common.actions')].map(h => (
+                <th key={h} className={`px-5 py-3 text-xs font-medium text-white/30 uppercase tracking-wider ${h === t('common.actions') ? 'text-right' : 'text-left'}`}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {!Array.isArray(customers) || customers.length === 0 ? (
-              <tr><td colSpan={7} className="px-5 py-12 text-center text-white/30 text-sm">No customers found.</td></tr>
+              <tr><td colSpan={7} className="px-5 py-12 text-center text-white/30 text-sm">{t('admin.no_customers_found')}</td></tr>
             ) : customers.map((c: any, i: number) => (
               <tr key={c._id} className={`border-b border-white/5 last:border-0 hover:bg-white/5 transition-colors ${i % 2 !== 0 ? 'bg-white/[0.02]' : ''}`}>
                 <td className="px-5 py-3.5">
@@ -61,14 +67,14 @@ export function Customers() {
                     c.isActive ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'
                   }`}>
                     <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
-                    {c.isActive ? 'Active' : 'Inactive'}
+                    {c.isActive ? t('common.active') : t('common.inactive')}
                   </span>
                 </td>
                 <td className="px-5 py-3.5 text-right">
                   <button
-                    onClick={() => confirm(`${c.isActive ? 'Deactivate' : 'Activate'} this customer?`) && toggleStatusMutation.mutate({ id: c._id, isActive: !c.isActive })}
+                    onClick={() => setConfirmStatus(c)}
                     className={`text-xs font-medium transition-colors ${c.isActive ? 'text-red-400 hover:text-red-300' : 'text-green-400 hover:text-green-300'}`}>
-                    {c.isActive ? 'Deactivate' : 'Activate'}
+                    {c.isActive ? t('common.deactivate') : t('common.activate')}
                   </button>
                 </td>
               </tr>
@@ -95,23 +101,36 @@ export function Customers() {
                 c.isActive ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'
               }`}>
                 <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
-                {c.isActive ? 'Active' : 'Inactive'}
+                {c.isActive ? t('common.active') : t('common.inactive')}
               </span>
             </div>
             <div className="grid grid-cols-2 gap-2 text-sm">
-              <div><p className="text-white/30 text-xs">Phone</p><p className="text-white/60">{c.phone}</p></div>
-              <div><p className="text-white/30 text-xs">Joined</p><p className="text-white/60">{new Date(c.createdAt).toLocaleDateString()}</p></div>
+              <div><p className="text-white/30 text-xs">{t('admin.phone')}</p><p className="text-white/60">{c.phone}</p></div>
+              <div><p className="text-white/30 text-xs">{t('admin.joined')}</p><p className="text-white/60">{new Date(c.createdAt).toLocaleDateString()}</p></div>
             </div>
             <button
-              onClick={() => confirm(`${c.isActive ? 'Deactivate' : 'Activate'} this customer?`) && toggleStatusMutation.mutate({ id: c._id, isActive: !c.isActive })}
+              onClick={() => setConfirmStatus(c)}
               className={`w-full py-2 text-xs font-medium rounded-xl border transition-colors ${
                 c.isActive ? 'text-red-400 bg-red-500/5 border-red-500/10 hover:bg-red-500/10' : 'text-green-400 bg-green-500/5 border-green-500/10 hover:bg-green-500/10'
               }`}>
-              {c.isActive ? 'Deactivate' : 'Activate'}
+              {c.isActive ? t('common.deactivate') : t('common.activate')}
             </button>
           </div>
         ))}
       </div>
+
+      <ConfirmDialog
+        isOpen={!!confirmStatus}
+        onClose={() => setConfirmStatus(null)}
+        onConfirm={() => toggleStatusMutation.mutate({ id: confirmStatus._id, isActive: !confirmStatus.isActive })}
+        title={confirmStatus?.isActive ? t('admin.deactivate_customer_title') : t('admin.activate_customer_title')}
+        message={confirmStatus?.isActive
+          ? t('admin.deactivate_customer_message', { name: confirmStatus?.name })
+          : t('admin.activate_customer_message', { name: confirmStatus?.name })}
+        type={confirmStatus?.isActive ? 'deactivate' : 'activate'}
+        confirmText={confirmStatus?.isActive ? t('common.deactivate') : t('common.activate')}
+        isLoading={toggleStatusMutation.isPending}
+      />
     </div>
   );
 }

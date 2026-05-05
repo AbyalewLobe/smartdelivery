@@ -23,11 +23,11 @@ export interface Address {
 
 export interface Shop {
   _id: string;
-  name: string;
+  name: LocalizedString | string;
   category: 'grocery' | 'restaurant' | 'pharmacy' | 'electronics' | 'fashion' | 'other';
-  description: string;
+  description: LocalizedString | string;
   logoUrl?: string;
-  address: string;
+  address: LocalizedString | string;
   phone: string;
   isActive: boolean;
   averageRating?: number;
@@ -40,8 +40,8 @@ export interface Shop {
 export interface Product {
   _id: string;
   shopId: string;
-  name: string;
-  description: string;
+  name: LocalizedString | string;
+  description: LocalizedString | string;
   price: number;
   images: string[];
   category?: string;
@@ -133,12 +133,17 @@ export interface Notification {
   createdAt: string;
 }
 
+export interface LocalizedString {
+  en: string;
+  am: string;
+}
+
 export interface Category {
   _id: string;
-  name: string;
+  name: LocalizedString | string;
   type: 'shop' | 'product';
   description?: string;
-  icon: string;
+  icon?: string;
   isActive: boolean;
   createdAt: string;
 }

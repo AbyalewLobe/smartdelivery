@@ -1,14 +1,7 @@
 import api from './axios';
+import type { Category, LocalizedString } from '../types';
 
-export interface Category {
-  _id: string;
-  name: string;
-  type: 'shop' | 'product';
-  description?: string;
-  icon: string;
-  isActive: boolean;
-  createdAt: string;
-}
+export type { Category, LocalizedString };
 
 export const categoryApi = {
   getCategories: async (params?: { type?: 'shop' | 'product'; activeOnly?: boolean }) => {
@@ -21,12 +14,12 @@ export const categoryApi = {
     return response.data;
   },
 
-  createCategory: async (data: { name: string; type: 'shop' | 'product'; description?: string; icon?: string }) => {
+  createCategory: async (data: { name: LocalizedString; type: 'shop' | 'product'; description?: string; icon?: string }) => {
     const response = await api.post('/categories', data);
     return response.data;
   },
 
-  updateCategory: async (id: string, data: { name?: string; description?: string; icon?: string; isActive?: boolean }) => {
+  updateCategory: async (id: string, data: { name?: LocalizedString; isActive?: boolean; description?: string; icon?: string }) => {
     const response = await api.put(`/categories/${id}`, data);
     return response.data;
   },

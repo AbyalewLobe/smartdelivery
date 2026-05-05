@@ -2,11 +2,15 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import { Menu, LogOut } from 'lucide-react';
 import { NotificationBell } from '../ui/NotificationBell';
+import { useTranslation } from 'react-i18next';
 
 export function AdminNavbar({ onMenuClick }: { onMenuClick: () => void }) {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
+
+  const toggleLang = () => i18n.changeLanguage(i18n.language === 'am' ? 'en' : 'am');
 
   const handleLogout = () => {
     logout();
@@ -26,18 +30,27 @@ export function AdminNavbar({ onMenuClick }: { onMenuClick: () => void }) {
           </button>
 
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-sm">B+</span>
+            <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0">
+              <img src="/sarah_andJoseph2-removebg-preview.png" alt="Sarah and Joseph" className="w-full h-full object-cover" />
             </div>
             <div className="hidden sm:block">
-              <p className="text-sm font-bold text-white leading-none">Bazaar+</p>
-              <p className="text-xs text-white/30 mt-0.5">Admin Panel</p>
+              <p className="text-sm font-bold text-white leading-none">{t('nav.brand')}</p>
+              <p className="text-xs text-white/30 mt-0.5">{t('admin.admin_panel')}</p>
             </div>
           </div>
         </div>
 
-        {/* Right: notifications + user + logout */}
+        {/* Right: language + notifications + user + logout */}
         <div className="flex items-center gap-2 md:gap-3">
+          {/* Language toggle */}
+          <button 
+            onClick={toggleLang}
+            className="flex items-center gap-1 px-2.5 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-semibold text-white/70 hover:text-white transition-colors"
+            title={`Switch to ${i18n.language === 'am' ? 'English' : 'Amharic'}`}
+          >
+            {i18n.language === 'am' ? 'EN' : 'አማ'}
+          </button>
+
           <NotificationBell />
 
           <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-white/5 border border-white/10 rounded-lg">
@@ -57,7 +70,7 @@ export function AdminNavbar({ onMenuClick }: { onMenuClick: () => void }) {
             className="flex items-center gap-1.5 px-3 py-2 bg-white/5 hover:bg-red-500/10 border border-white/10 hover:border-red-500/30 text-white/50 hover:text-red-400 rounded-lg text-xs font-medium transition-all"
           >
             <LogOut size={14} />
-            <span className="hidden sm:inline">Logout</span>
+            <span className="hidden sm:inline">{t('nav.logout')}</span>
           </button>
         </div>
       </div>

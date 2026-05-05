@@ -77,32 +77,46 @@ export const createShop = async (req, res) => {
     let logoUrl = null;
     let logoPublicId = null;
 
-    // Upload logo to Cloudinary if file exists
     if (req.file) {
       const result = await uploadToCloudinary(req.file.path, 'shops');
       logoUrl = result.url;
       logoPublicId = result.publicId;
     }
+
+    // Parse JSON strings sent via FormData with error handling
+    let parsedName, parsedDesc, parsedAddress;
+    try {
+      parsedName = typeof name === 'string' ? JSON.parse(name) : name;
+    } catch (e) {
+      parsedName = { en: name, am: '' };
+    }
     
-    const shopData = {
-      name,
+    try {
+      parsedDesc = typeof description === 'string' ? JSON.parse(description) : description;
+    } catch (e) {
+      parsedDesc = { en: description, am: '' };
+    }
+
+    try {
+      parsedAddress = typeof address === 'string' ? JSON.parse(address) : address;
+    } catch (e) {
+      parsedAddress = { en: address, am: '' };
+    }
+
+    const shop = await Shop.create({
+      name: parsedName,
       category,
-      description,
-      address,
+      description: parsedDesc,
+      address: parsedAddress,
       phone,
       logoUrl,
       logoPublicId
-    };
+    });
 
-    const shop = await Shop.create(shopData);
     res.status(201).json({ success: true, data: shop, message: 'Shop created successfully' });
   } catch (error) {
     console.error('Create shop error:', error);
-    res.status(500).json({ 
-      success: false, 
-      message: error.message,
-      details: error.http_code ? 'Cloudinary error: ' + error.message : error.message
-    });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -117,11 +131,29 @@ export const updateShop = async (req, res) => {
 
     const { name, category, description, address, phone } = req.body;
     
-    shop.name = name || shop.name;
-    shop.category = category || shop.category;
-    shop.description = description || shop.description;
-    shop.address = address || shop.address;
-    shop.phone = phone || shop.phone;
+    if (name) {
+      try {
+        shop.name = typeof name === 'string' ? JSON.parse(name) : name;
+      } catch (e) {
+        shop.name = { en: name, am: shop.name?.am || '' };
+      }
+    }
+    if (description) {
+      try {
+        shop.description = typeof description === 'string' ? JSON.parse(description) : description;
+      } catch (e) {
+        shop.description = { en: description, am: shop.description?.am || '' };
+      }
+    }
+    if (address) {
+      try {
+        shop.address = typeof address === 'string' ? JSON.parse(address) : address;
+      } catch (e) {
+        shop.address = { en: address, am: shop.address?.am || '' };
+      }
+    }
+    if (category) shop.category = category;
+    if (phone) shop.phone = phone;
 
     // Handle logo replacement
     if (req.file) {

@@ -4,6 +4,7 @@ import { useAuthStore, useIsAuthenticated } from '../../store/authStore';
 import { useTotalItems } from '../../store/cartStore';
 import { useState, useEffect, useRef } from 'react';
 import { NotificationBell } from '../ui/NotificationBell';
+import { useTranslation } from 'react-i18next';
 
 export function Navbar() {
   const user = useAuthStore((state) => state.user);
@@ -14,6 +15,9 @@ export function Navbar() {
   const location = useLocation();
   const [showMenu, setShowMenu] = useState(false);
   const navRef = useRef<HTMLDivElement>(null);
+  const { t, i18n } = useTranslation();
+
+  const toggleLang = () => i18n.changeLanguage(i18n.language === 'am' ? 'en' : 'am');
 
   const handleLogout = () => {
     logout();
@@ -44,26 +48,20 @@ export function Navbar() {
 
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-1.5 flex-shrink-0">
-            <div className="w-8 h-8 bg-primary-400 rounded-full flex items-center justify-center">
-              <span className="text-white font-bold text-sm">B+</span>
+            <div className="w-9 h-9 rounded-full overflow-hidden flex-shrink-0">
+              <img src="/sarah_andJoseph2-removebg-preview.png" alt="Sarah and Joseph" className="w-full h-full object-cover" />
             </div>
-            <span className="font-bold text-white text-lg tracking-tight">Bazaar+</span>
+            <span className="font-bold text-white text-lg tracking-tight">{t('nav.brand')}</span>
           </Link>
 
           {/* Desktop center links */}
           <div className="hidden md:flex items-center gap-6 flex-1 justify-center">
-            <Link
-              to="/shops"
-              className={`text-sm font-medium transition-colors ${isActive('/shops') ? 'text-primary-300' : 'text-white/70 hover:text-white'}`}
-            >
-              Shops
+            <Link to="/shops" className={`text-sm font-medium transition-colors ${isActive('/shops') ? 'text-primary-300' : 'text-white/70 hover:text-white'}`}>
+              {t('nav.shops')}
             </Link>
             {isAuthenticated && (
-              <Link
-                to="/orders"
-                className={`text-sm font-medium transition-colors ${isActive('/orders') ? 'text-primary-300' : 'text-white/70 hover:text-white'}`}
-              >
-                Orders
+              <Link to="/orders" className={`text-sm font-medium transition-colors ${isActive('/orders') ? 'text-primary-300' : 'text-white/70 hover:text-white'}`}>
+                {t('nav.orders')}
               </Link>
             )}
           </div>
@@ -71,25 +69,26 @@ export function Navbar() {
           {/* Right side actions */}
           <div className="flex items-center gap-2 flex-shrink-0">
 
+            {/* Language toggle */}
+            <button onClick={toggleLang}
+              className="hidden sm:flex items-center gap-1 px-2.5 py-1.5 bg-white/10 hover:bg-white/20 border border-white/10 rounded-lg text-xs font-semibold text-white/70 hover:text-white transition-colors">
+              {i18n.language === 'am' ? 'EN' : 'አማ'}
+            </button>
+
             {isAuthenticated ? (
               <>
-                {/* Notification */}
                 <NotificationBell />
-
-                {/* Cart pill button */}
                 <Link to="/cart" className="relative flex items-center gap-1.5 bg-primary-500 hover:bg-primary-600 text-white text-sm font-semibold pl-3 pr-4 py-2 rounded-full transition-colors">
                   <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
                     <ShoppingCart className="w-3.5 h-3.5" />
                   </div>
-                  <span className="hidden sm:inline">Cart</span>
+                  <span className="hidden sm:inline">{t('nav.cart')}</span>
                   {totalItems > 0 && (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold">
                       {totalItems}
                     </span>
                   )}
                 </Link>
-
-                {/* User dropdown */}
                 <div className="relative group">
                   <button className="w-9 h-9 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors border border-white/20">
                     <User className="w-4 h-4 text-white" />
@@ -100,32 +99,28 @@ export function Navbar() {
                       <p className="text-xs text-gray-500">{user?.email}</p>
                     </div>
                     <Link to="/profile" className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50">
-                      <User className="w-4 h-4" /> Profile
+                      <User className="w-4 h-4" /> {t('nav.profile')}
                     </Link>
                     <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50">
-                      <LogOut className="w-4 h-4" /> Logout
+                      <LogOut className="w-4 h-4" /> {t('nav.logout')}
                     </button>
                   </div>
                 </div>
               </>
             ) : (
               <>
-                {/* CTA pill button */}
-                <Link
-                  to="/register"
-                  className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white text-sm font-semibold pl-2 pr-4 py-2 rounded-full transition-colors"
-                >
+                <Link to="/register" className="flex items-center gap-2 bg-primary-500 hover:bg-primary-600 text-white text-sm font-semibold pl-2 pr-4 py-2 rounded-full transition-colors"                >
                   <div className="w-6 h-6 bg-white/20 rounded-full flex items-center justify-center">
                     <ArrowRight className="w-3.5 h-3.5" />
                   </div>
-                  <span>Get Started</span>
+                  <span>{t('nav.getStarted')}</span>
                 </Link>
 
                 <Link
                   to="/login"
                   className="hidden sm:block text-sm font-medium text-white/70 hover:text-white transition-colors"
                 >
-                  Login
+                  {t('nav.login')}
                 </Link>
               </>
             )}
@@ -148,35 +143,40 @@ export function Navbar() {
           <div className="p-3 space-y-1">
             <Link to="/shops" onClick={handleMenuClick}
               className="flex items-center px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-xl transition-colors">
-              Shops
+              {t('nav.shops')}
             </Link>
             {isAuthenticated ? (
               <>
                 <Link to="/orders" onClick={handleMenuClick}
                   className="flex items-center px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-xl transition-colors">
-                  Orders
+                  {t('nav.orders')}
                 </Link>
                 <Link to="/profile" onClick={handleMenuClick}
                   className="flex items-center px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-xl transition-colors">
-                  Profile
+                  {t('nav.profile')}
                 </Link>
                 <button onClick={handleLogout}
                   className="w-full flex items-center px-4 py-3 text-sm font-medium text-red-500 hover:bg-red-50 rounded-xl transition-colors">
-                  Logout
+                  {t('nav.logout')}
                 </button>
               </>
             ) : (
               <>
                 <Link to="/login" onClick={handleMenuClick}
                   className="flex items-center px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50 rounded-xl transition-colors">
-                  Login
+                  {t('nav.login')}
                 </Link>
                 <Link to="/register" onClick={handleMenuClick}
                   className="flex items-center justify-center px-4 py-3 text-sm font-semibold text-white bg-primary-500 hover:bg-primary-600 rounded-xl transition-colors">
-                  Get Started
+                  {t('nav.getStarted')}
                 </Link>
               </>
             )}
+            {/* Language toggle in mobile menu */}
+            <button onClick={toggleLang}
+              className="w-full flex items-center justify-center px-4 py-2.5 text-sm font-medium text-gray-500 hover:bg-gray-50 rounded-xl transition-colors border border-gray-100 mt-1">
+              {i18n.language === 'am' ? '🇬🇧 English' : '🇪🇹 አማርኛ'}
+            </button>
           </div>
         </div>
 
