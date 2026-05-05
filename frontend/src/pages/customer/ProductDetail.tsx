@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { productApi } from '../../api/productApi';
 import { useCartStore } from '../../store/cartStore';
-import { formatPrice } from '../../lib/utils';
+import { formatPrice, getLocalized } from '../../lib/utils';
 import { ArrowLeft, MapPin, Minus, Plus, Package, ShoppingCart } from 'lucide-react';
 
 export function ProductDetail() {
+  const { t, i18n } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [quantity, setQuantity] = useState(1);
@@ -23,10 +25,11 @@ export function ProductDetail() {
   const handleAddToCart = () => {
     if (!product) return;
     const shopId = typeof product.shopId === 'object' ? product.shopId._id : product.shopId;
-    const shopName = typeof product.shopId === 'object' ? product.shopId.name : 'Shop';
+    const shopName = getLocalized(typeof product.shopId === 'object' ? product.shopId.name : 'Shop', i18n.language);
+    const productName = getLocalized(product.name, i18n.language);
     addItem(shopId, shopName, {
       productId: product._id,
-      name: product.name,
+      name: productName,
       price: product.price,
       quantity,
       image: product.images?.[0]
@@ -49,19 +52,21 @@ export function ProductDetail() {
           <div className="w-20 h-20 bg-white/5 border border-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
             <Package className="w-10 h-10 text-white/20" />
           </div>
-          <p className="text-white/40 mb-6">Product not found</p>
+          <p className="text-white/40 mb-6">{t('product.not_found')}</p>
           <button onClick={() => navigate(-1)}
             className="px-6 py-2.5 bg-primary-500 hover:bg-primary-400 text-white font-semibold rounded-full transition-colors">
-            Go Back
+            {t('product.back')}
           </button>
         </div>
       </div>
     );
   }
 
-  const shopName = typeof product.shopId === 'object' ? product.shopId.name : 'Shop';
   const shopId = typeof product.shopId === 'object' ? product.shopId._id : product.shopId;
-  const shopAddress = typeof product.shopId === 'object' ? product.shopId.address : '';
+  const shopAddress = getLocalized(typeof product.shopId === 'object' ? product.shopId.address : '', i18n.language);
+  const shopDisplayName = getLocalized(typeof product.shopId === 'object' ? product.shopId.name : 'Shop', i18n.language);
+  const productName = getLocalized(product.name, i18n.language);
+  const productDesc = getLocalized(product.description, i18n.language);
 
   return (
     <div className="min-h-screen bg-gray-950">
@@ -70,21 +75,19 @@ export function ProductDetail() {
       <section className="relative bg-gradient-to-br from-gray-900 via-primary-950 to-primary-900 overflow-hidden">
         <div className="absolute top-0 right-1/3 w-72 h-72 bg-primary-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
-        {/* Back button */}
         <div className="relative max-w-5xl mx-auto px-4 pt-6 pb-4">
           <button onClick={() => navigate(-1)}
             className="flex items-center gap-2 text-white/40 hover:text-white text-sm transition-colors">
             <ArrowLeft className="w-4 h-4" />
-            Back
+            {t('product.back')}
           </button>
         </div>
 
-        {/* Image */}
         <div className="relative max-w-5xl mx-auto px-4 pb-10">
           <div className="relative max-w-sm mx-auto md:mx-0">
             <div className="aspect-square rounded-3xl overflow-hidden bg-white/5 border border-white/10 shadow-2xl shadow-black/40">
               {product.images && product.images.length > 0 ? (
-                <img src={product.images[selectedImage]} alt={product.name}
+                <img src={product.images[selectedImage]} alt={productName}
                   className="w-full h-full object-cover" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">
@@ -92,15 +95,11 @@ export function ProductDetail() {
                 </div>
               )}
             </div>
-
-            {/* Image dots */}
             {product.images && product.images.length > 1 && (
               <div className="flex justify-center gap-2 mt-4">
                 {product.images.map((_: string, i: number) => (
                   <button key={i} onClick={() => setSelectedImage(i)}
-                    className={`h-1.5 rounded-full transition-all ${
-                      selectedImage === i ? 'w-6 bg-primary-400' : 'w-1.5 bg-white/20'
-                    }`} />
+                    className={`h-1.5 rounded-full transition-all ${selectedImage === i ? 'w-6 bg-primary-400' : 'w-1.5 bg-white/20'}`} />
                 ))}
               </div>
             )}
@@ -111,17 +110,15 @@ export function ProductDetail() {
       {/* Product info */}
       <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
 
-        {/* Name + shop */}
         <div>
-          <h1 className="text-3xl font-bold text-white mb-2">{product.name}</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">{productName}</h1>
           <Link to={`/shops/${shopId}`}
             className="inline-flex items-center gap-1.5 text-sm text-white/40 hover:text-primary-400 transition-colors">
             <MapPin className="w-3.5 h-3.5" />
-            {shopAddress || shopName}
+            {shopAddress || shopDisplayName}
           </Link>
         </div>
 
-        {/* Badges */}
         <div className="flex flex-wrap gap-3">
           <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full border ${
             product.isAvailable && product.stock > 0
@@ -129,30 +126,24 @@ export function ProductDetail() {
               : 'bg-red-500/10 text-red-400 border-red-500/20'
           }`}>
             <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
-            {product.isAvailable && product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+            {product.isAvailable && product.stock > 0
+              ? t('product.in_stock', { count: product.stock })
+              : t('product.out_of_stock')}
           </span>
-          {product.category && (
-            <span className="inline-flex px-3 py-1.5 text-xs font-medium rounded-full bg-primary-500/10 text-primary-400 border border-primary-500/20">
-              {product.category}
-            </span>
-          )}
         </div>
 
-        {/* Description */}
         <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
-          <p className="text-white/60 text-sm leading-relaxed">{product.description}</p>
+          <p className="text-white/60 text-sm leading-relaxed">{productDesc}</p>
         </div>
 
-        {/* Quantity + Add to cart */}
         <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
           <div>
-            <p className="text-xs text-white/30 mb-1">Total amount</p>
+            <p className="text-xs text-white/30 mb-1">{t('product.total')}</p>
             <p className="text-3xl font-bold text-white">{formatPrice(product.price * quantity)}</p>
-            <p className="text-xs text-white/30 mt-0.5">{formatPrice(product.price)} each</p>
+            <p className="text-xs text-white/30 mt-0.5">{formatPrice(product.price)} {t('product.each')}</p>
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Quantity controls */}
             <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-full px-3 py-2">
               <button onClick={() => setQuantity(Math.max(1, quantity - 1))} disabled={quantity <= 1}
                 className="w-7 h-7 flex items-center justify-center text-white/50 hover:text-white disabled:opacity-30 transition-colors">
@@ -165,12 +156,11 @@ export function ProductDetail() {
               </button>
             </div>
 
-            {/* Add to cart */}
             <button onClick={handleAddToCart}
               disabled={!product.isAvailable || product.stock === 0}
               className="flex items-center gap-2 px-6 py-3 bg-primary-500 hover:bg-primary-400 text-white font-semibold rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-primary-900/40">
               <ShoppingCart className="w-4 h-4" />
-              Add to Cart
+              {t('product.add_to_cart')}
             </button>
           </div>
         </div>
