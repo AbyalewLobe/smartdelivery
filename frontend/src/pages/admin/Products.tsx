@@ -35,7 +35,7 @@ export function Products() {
   });
 
   const filteredProducts = Array.isArray(products) ? products.filter((p: any) => {
-    const shopMatch = selectedShop === 'all' || (typeof p.shopId === 'object' ? p.shopId._id === selectedShop : p.shopId === selectedShop);
+    const shopMatch = selectedShop === 'all' || (typeof p.shopId === 'object' && p.shopId ? p.shopId._id === selectedShop : p.shopId === selectedShop);
     
     // Handle bilingual search
     const productName = typeof p.name === 'object' ? `${p.name.en || ''} ${p.name.am || ''}` : p.name || '';
@@ -125,7 +125,7 @@ export function Products() {
                     </div>
                   </div>
                 </td>
-                <td className="px-5 py-3.5 text-sm text-white/50">{typeof p.shopId === 'object' ? getLocalized(p.shopId.name, i18n.language) : '—'}</td>
+                <td className="px-5 py-3.5 text-sm text-white/50">{typeof p.shopId === 'object' && p.shopId ? getLocalized(p.shopId.name, i18n.language) : '—'}</td>
                 <td className="px-5 py-3.5 text-sm font-semibold text-primary-400">{formatPrice(p.price)}</td>
                 <td className="px-5 py-3.5 text-sm text-white/50">{p.stock}</td>
                 <td className="px-5 py-3.5">
@@ -160,7 +160,7 @@ export function Products() {
               )}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-semibold text-white truncate">{getLocalized(p.name, i18n.language)}</p>
-                <p className="text-xs text-white/30 truncate">{typeof p.shopId === 'object' ? getLocalized(p.shopId.name, i18n.language) : '—'}</p>
+                <p className="text-xs text-white/30 truncate">{typeof p.shopId === 'object' && p.shopId ? getLocalized(p.shopId.name, i18n.language) : '—'}</p>
               </div>
               <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-xs font-medium rounded-full border flex-shrink-0 ${
                 p.isAvailable ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'
@@ -204,7 +204,7 @@ export function Products() {
 
 function ProductModal({ product, shops, onClose }: { product: any; shops: any[]; onClose: () => void }) {
   const [formData, setFormData] = useState({
-    shopId: typeof product?.shopId === 'object' ? product?.shopId._id : product?.shopId || '',
+    shopId: typeof product?.shopId === 'object' && product?.shopId ? product?.shopId._id : product?.shopId || '',
     name: typeof product?.name === 'object' ? product.name : { en: product?.name || '', am: '' },
     description: typeof product?.description === 'object' ? product.description : { en: product?.description || '', am: '' },
     price: product?.price || '',

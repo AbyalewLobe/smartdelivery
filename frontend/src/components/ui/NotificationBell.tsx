@@ -59,13 +59,13 @@ export const NotificationBell = () => {
   const { data } = useQuery({
     queryKey: ['notifications'],
     queryFn: () => notificationApi.getNotifications({ limit: 30 }),
-    refetchInterval: 10000
+    refetchInterval: 60000 // Poll every 60 seconds instead of 10
   });
 
   const { data: countData } = useQuery({
     queryKey: ['notificationCount'],
     queryFn: () => notificationApi.getUnreadCount(),
-    refetchInterval: 10000
+    refetchInterval: 60000 // Poll every 60 seconds instead of 10
   });
 
   useEffect(() => { if (data?.data) setNotifications(data.data); }, [data, setNotifications]);

@@ -11,9 +11,9 @@
     "getStarted": "Get Started"
   },
   "home": {
-    "hero_title": "Discover Amazing Products,",
-    "hero_subtitle": "From Trusted Local Shops",
-    "hero_desc": "Order from your favorite local shops and get everything delivered to your door.",
+    "hero_title": "Easily shop,",
+    "hero_subtitle": "for a variety of amazing products from our various stores.",
+    "hero_desc": "We deliver your order to your location at an affordable price, without any hassle.",
     "start_shopping": "Start Shopping",
     "shop_by_category": "Shop by Category",
     "browse_by_category": "Browse by Category",
@@ -187,7 +187,7 @@
     "menu": "Menu"
   },
   "footer": {
-    "tagline": "Your trusted delivery partner for products from local shops.",
+    "tagline": "Your trusted delivery partner for products from various shops.",
     "quick_links": "Quick Links",
     "contact": "Contact",
     "follow": "Follow Us",
